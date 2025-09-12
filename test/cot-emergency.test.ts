@@ -1,317 +1,299 @@
-import test from 'tape';
+import { describe, test, expect } from 'vitest';
 import { CoTParser } from '../index.js';
 
-test('COT Emergency - Troops in Contact', async (t) => {
-    const cot = await CoTParser.from_geojson({
-        id: '6da80127-44d4-4bf0-89bd-ecd326afaef1',
-        type: 'Feature',
-        properties: {
-            callsign: 'Example Emergency',
-            type: 'b-a-o-opn',
-            how: 'm-g'
-        },
-        geometry: {
-            type: 'Point',
-            coordinates: [ -108.547391197293, 38.5144413169673 ]
+describe('Emergency CoT Tests', () => {
+    test('COT Emergency - Troops in Contact', async () => {
+        const cot = await CoTParser.from_geojson({
+            id: '6da80127-44d4-4bf0-89bd-ecd326afaef1',
+            type: 'Feature',
+            properties: {
+                callsign: 'Example Emergency',
+                type: 'b-a-o-opn',
+                how: 'm-g'
+            },
+            geometry: {
+                type: 'Point',
+                coordinates: [ -108.547391197293, 38.5144413169673 ]
+            }
+        })
+
+        if (!cot.raw.event.detail) {
+            throw new Error('No Detail Section');
+        } else {
+            expect(cot.raw.event.detail['_flow-tags_']).toBeDefined();
+            delete cot.raw.event.detail['_flow-tags_'];
+
+            expect(cot.type()).toBe('b-a-o-opn');
+
+            expect(cot.raw.event.detail.emergency).toEqual({
+                _attributes: { type: 'Troops In Contact' },
+                _text: 'Example Emergency'
+            });
         }
-    })
+    });
 
-    if (!cot.raw.event.detail) {
-        t.fail('No Detail Section')
-    } else {
-        t.ok(cot.raw.event.detail['_flow-tags_']);
-        delete cot.raw.event.detail['_flow-tags_'];
+    test('COT Emergency - Troops in Contact - No Callsign', async () => {
+        const cot = await CoTParser.from_geojson({
+            id: '6da80127-44d4-4bf0-89bd-ecd326afaef1',
+            type: 'Feature',
+            properties: {
+                type: 'b-a-o-opn',
+                how: 'm-g'
+            },
+            geometry: {
+                type: 'Point',
+                coordinates: [ -108.547391197293, 38.5144413169673 ]
+            }
+        })
 
-        t.deepEquals(cot.type(), 'b-a-o-opn', 'Type should be b-a-o-opn');
+        if (!cot.raw.event.detail) {
+            throw new Error('No Detail Section');
+        } else {
+            expect(cot.raw.event.detail['_flow-tags_']).toBeDefined();
+            delete cot.raw.event.detail['_flow-tags_'];
 
-        t.deepEquals(cot.raw.event.detail.emergency, {
-            _attributes: { type: 'Troops In Contact' },
-            _text: 'Example Emergency'
-        }, 'Detail should match expected values');
-    }
+            expect(cot.type()).toBe('b-a-o-opn');
 
-    t.end();
-});
-
-test('COT Emergency - Troops in Contact - No Callsign', async (t) => {
-    const cot = await CoTParser.from_geojson({
-        id: '6da80127-44d4-4bf0-89bd-ecd326afaef1',
-        type: 'Feature',
-        properties: {
-            type: 'b-a-o-opn',
-            how: 'm-g'
-        },
-        geometry: {
-            type: 'Point',
-            coordinates: [ -108.547391197293, 38.5144413169673 ]
+            expect(cot.raw.event.detail.emergency).toEqual({
+                _attributes: { type: 'Troops In Contact' },
+                _text: 'UNKNOWN'
+            });
         }
-    })
+    });
 
-    if (!cot.raw.event.detail) {
-        t.fail('No Detail Section')
-    } else {
-        t.ok(cot.raw.event.detail['_flow-tags_']);
-        delete cot.raw.event.detail['_flow-tags_'];
+    test('COT Emergency - 911 Alert', async () => {
+        const cot = await CoTParser.from_geojson({
+            id: '6da80127-44d4-4bf0-89bd-ecd326afaef1',
+            type: 'Feature',
+            properties: {
+                callsign: 'Example Emergency',
+                type: 'b-a-o-tbl',
+                how: 'm-g'
+            },
+            geometry: {
+                type: 'Point',
+                coordinates: [ -108.547391197293, 38.5144413169673 ]
+            }
+        })
 
-        t.deepEquals(cot.type(), 'b-a-o-opn', 'Type should be b-a-o-opn');
+        if (!cot.raw.event.detail) {
+            throw new Error('No Detail Section');
+        } else {
+            expect(cot.raw.event.detail['_flow-tags_']).toBeDefined();
+            delete cot.raw.event.detail['_flow-tags_'];
 
-        t.deepEquals(cot.raw.event.detail.emergency, {
-            _attributes: { type: 'Troops In Contact' },
-            _text: 'UNKNOWN'
-        }, 'Detail should match expected values');
-    }
+            expect(cot.type()).toBe('b-a-o-tbl');
 
-    t.end();
-});
-
-test('COT Emergency - 911 Alert', async (t) => {
-    const cot = await CoTParser.from_geojson({
-        id: '6da80127-44d4-4bf0-89bd-ecd326afaef1',
-        type: 'Feature',
-        properties: {
-            callsign: 'Example Emergency',
-            type: 'b-a-o-tbl',
-            how: 'm-g'
-        },
-        geometry: {
-            type: 'Point',
-            coordinates: [ -108.547391197293, 38.5144413169673 ]
+            expect(cot.raw.event.detail.emergency).toEqual({
+                _attributes: { type: '911 Alert' },
+                _text: 'Example Emergency'
+            });
         }
-    })
+    });
 
-    if (!cot.raw.event.detail) {
-        t.fail('No Detail Section')
-    } else {
-        t.ok(cot.raw.event.detail['_flow-tags_']);
-        delete cot.raw.event.detail['_flow-tags_'];
+    test('COT Emergency - 911 Alert - No Callsign', async () => {
+        const cot = await CoTParser.from_geojson({
+            id: '6da80127-44d4-4bf0-89bd-ecd326afaef1',
+            type: 'Feature',
+            properties: {
+                type: 'b-a-o-tbl',
+                how: 'm-g'
+            },
+            geometry: {
+                type: 'Point',
+                coordinates: [ -108.547391197293, 38.5144413169673 ]
+            }
+        })
 
-        t.deepEquals(cot.type(), 'b-a-o-tbl', 'Type should be b-a-o-tbl');
+        if (!cot.raw.event.detail) {
+            throw new Error('No Detail Section');
+        } else {
+            expect(cot.raw.event.detail['_flow-tags_']).toBeDefined();
+            delete cot.raw.event.detail['_flow-tags_'];
 
-        t.deepEquals(cot.raw.event.detail.emergency, {
-            _attributes: { type: '911 Alert' },
-            _text: 'Example Emergency'
-        }, 'Detail should match expected values');
-    }
+            expect(cot.type()).toBe('b-a-o-tbl');
 
-    t.end();
-});
-
-test('COT Emergency - 911 Alert - No Callsign', async (t) => {
-    const cot = await CoTParser.from_geojson({
-        id: '6da80127-44d4-4bf0-89bd-ecd326afaef1',
-        type: 'Feature',
-        properties: {
-            type: 'b-a-o-tbl',
-            how: 'm-g'
-        },
-        geometry: {
-            type: 'Point',
-            coordinates: [ -108.547391197293, 38.5144413169673 ]
+            expect(cot.raw.event.detail.emergency).toEqual({
+                _attributes: { type: '911 Alert' },
+                _text: 'UNKNOWN'
+            });
         }
-    })
+    });
 
-    if (!cot.raw.event.detail) {
-        t.fail('No Detail Section')
-    } else {
-        t.ok(cot.raw.event.detail['_flow-tags_']);
-        delete cot.raw.event.detail['_flow-tags_'];
+    test('COT Emergency - Cancel', async () => {
+        const cot = await CoTParser.from_geojson({
+            id: '6da80127-44d4-4bf0-89bd-ecd326afaef1',
+            type: 'Feature',
+            properties: {
+                callsign: 'Example Emergency',
+                type: 'b-a-o-can',
+                how: 'm-g'
+            },
+            geometry: {
+                type: 'Point',
+                coordinates: [ -108.547391197293, 38.5144413169673 ]
+            }
+        })
 
-        t.deepEquals(cot.type(), 'b-a-o-tbl', 'Type should be b-a-o-tbl');
+        if (!cot.raw.event.detail) {
+            throw new Error('No Detail Section');
+        } else {
+            expect(cot.raw.event.detail['_flow-tags_']).toBeDefined();
+            delete cot.raw.event.detail['_flow-tags_'];
 
-        t.deepEquals(cot.raw.event.detail.emergency, {
-            _attributes: { type: '911 Alert' },
-            _text: 'UNKNOWN'
-        }, 'Detail should match expected values');
-    }
+            expect(cot.type()).toBe('b-a-o-can');
 
-    t.end();
-});
-
-test('COT Emergency - Cancel', async (t) => {
-    const cot = await CoTParser.from_geojson({
-        id: '6da80127-44d4-4bf0-89bd-ecd326afaef1',
-        type: 'Feature',
-        properties: {
-            callsign: 'Example Emergency',
-            type: 'b-a-o-can',
-            how: 'm-g'
-        },
-        geometry: {
-            type: 'Point',
-            coordinates: [ -108.547391197293, 38.5144413169673 ]
+            expect(cot.raw.event.detail.emergency).toEqual({
+                _attributes: { cancel: true },
+                _text: 'Example Emergency'
+            });
         }
-    })
+    });
 
-    if (!cot.raw.event.detail) {
-        t.fail('No Detail Section')
-    } else {
-        t.ok(cot.raw.event.detail['_flow-tags_']);
-        delete cot.raw.event.detail['_flow-tags_'];
+    test('COT Emergency - Cancel - No Callsign', async () => {
+        const cot = await CoTParser.from_geojson({
+            id: '6da80127-44d4-4bf0-89bd-ecd326afaef1',
+            type: 'Feature',
+            properties: {
+                type: 'b-a-o-can',
+                how: 'm-g'
+            },
+            geometry: {
+                type: 'Point',
+                coordinates: [ -108.547391197293, 38.5144413169673 ]
+            }
+        })
 
-        t.deepEquals(cot.type(), 'b-a-o-can', 'Type should be b-a-o-can');
+        if (!cot.raw.event.detail) {
+            throw new Error('No Detail Section');
+        } else {
+            expect(cot.raw.event.detail['_flow-tags_']).toBeDefined();
+            delete cot.raw.event.detail['_flow-tags_'];
 
-        t.deepEquals(cot.raw.event.detail.emergency, {
-            _attributes: { cancel: true },
-            _text: 'Example Emergency'
-        }, 'Detail should match expected values');
-    }
+            expect(cot.type()).toBe('b-a-o-can');
 
-    t.end();
-});
-
-test('COT Emergency - Cancel - No Callsign', async (t) => {
-    const cot = await CoTParser.from_geojson({
-        id: '6da80127-44d4-4bf0-89bd-ecd326afaef1',
-        type: 'Feature',
-        properties: {
-            type: 'b-a-o-can',
-            how: 'm-g'
-        },
-        geometry: {
-            type: 'Point',
-            coordinates: [ -108.547391197293, 38.5144413169673 ]
+            expect(cot.raw.event.detail.emergency).toEqual({
+                _attributes: { cancel: true },
+                _text: 'UNKNOWN'
+            });
         }
-    })
+    });
 
-    if (!cot.raw.event.detail) {
-        t.fail('No Detail Section')
-    } else {
-        t.ok(cot.raw.event.detail['_flow-tags_']);
-        delete cot.raw.event.detail['_flow-tags_'];
+    test('COT Emergency - Ring The Bell', async () => {
+        const cot = await CoTParser.from_geojson({
+            id: '6da80127-44d4-4bf0-89bd-ecd326afaef1',
+            type: 'Feature',
+            properties: {
+                callsign: 'Example Emergency',
+                type: 'b-a-o-pan',
+                how: 'm-g'
+            },
+            geometry: {
+                type: 'Point',
+                coordinates: [ -108.547391197293, 38.5144413169673 ]
+            }
+        })
 
-        t.deepEquals(cot.type(), 'b-a-o-can', 'Type should be b-a-o-can');
+        if (!cot.raw.event.detail) {
+            throw new Error('No Detail Section');
+        } else {
+            expect(cot.raw.event.detail['_flow-tags_']).toBeDefined();
+            delete cot.raw.event.detail['_flow-tags_'];
 
-        t.deepEquals(cot.raw.event.detail.emergency, {
-            _attributes: { cancel: true },
-            _text: 'UNKNOWN'
-        }, 'Detail should match expected values');
-    }
+            expect(cot.type()).toBe('b-a-o-pan');
 
-    t.end();
-});
-
-test('COT Emergency - Ring The Bell', async (t) => {
-    const cot = await CoTParser.from_geojson({
-        id: '6da80127-44d4-4bf0-89bd-ecd326afaef1',
-        type: 'Feature',
-        properties: {
-            callsign: 'Example Emergency',
-            type: 'b-a-o-pan',
-            how: 'm-g'
-        },
-        geometry: {
-            type: 'Point',
-            coordinates: [ -108.547391197293, 38.5144413169673 ]
+            expect(cot.raw.event.detail.emergency).toEqual({
+                _attributes: { type: 'Ring The Bell' },
+                _text: 'Example Emergency'
+            });
         }
-    })
+    });
 
-    if (!cot.raw.event.detail) {
-        t.fail('No Detail Section')
-    } else {
-        t.ok(cot.raw.event.detail['_flow-tags_']);
-        delete cot.raw.event.detail['_flow-tags_'];
+    test('COT Emergency - Ring The Bell - No Callsign', async () => {
+        const cot = await CoTParser.from_geojson({
+            id: '6da80127-44d4-4bf0-89bd-ecd326afaef1',
+            type: 'Feature',
+            properties: {
+                type: 'b-a-o-pan',
+                how: 'm-g'
+            },
+            geometry: {
+                type: 'Point',
+                coordinates: [ -108.547391197293, 38.5144413169673 ]
+            }
+        })
 
-        t.deepEquals(cot.type(), 'b-a-o-pan', 'Type should be b-a-o-pan');
+        if (!cot.raw.event.detail) {
+            throw new Error('No Detail Section');
+        } else {
+            expect(cot.raw.event.detail['_flow-tags_']).toBeDefined();
+            delete cot.raw.event.detail['_flow-tags_'];
 
-        t.deepEquals(cot.raw.event.detail.emergency, {
-            _attributes: { type: 'Ring The Bell' },
-            _text: 'Example Emergency'
-        }, 'Detail should match expected values');
-    }
+            expect(cot.type()).toBe('b-a-o-pan');
 
-    t.end();
-});
-
-test('COT Emergency - Ring The Bell - No Callsign', async (t) => {
-    const cot = await CoTParser.from_geojson({
-        id: '6da80127-44d4-4bf0-89bd-ecd326afaef1',
-        type: 'Feature',
-        properties: {
-            type: 'b-a-o-pan',
-            how: 'm-g'
-        },
-        geometry: {
-            type: 'Point',
-            coordinates: [ -108.547391197293, 38.5144413169673 ]
+            expect(cot.raw.event.detail.emergency).toEqual({
+                _attributes: { type: 'Ring The Bell' },
+                _text: 'UNKNOWN'
+            });
         }
-    })
+    });
 
-    if (!cot.raw.event.detail) {
-        t.fail('No Detail Section')
-    } else {
-        t.ok(cot.raw.event.detail['_flow-tags_']);
-        delete cot.raw.event.detail['_flow-tags_'];
+    test('COT Emergency - GeoFence Breached', async () => {
+        const cot = await CoTParser.from_geojson({
+            id: '6da80127-44d4-4bf0-89bd-ecd326afaef1',
+            type: 'Feature',
+            properties: {
+                callsign: 'Example Emergency',
+                type: 'b-a-g',
+                how: 'm-g'
+            },
+            geometry: {
+                type: 'Point',
+                coordinates: [ -108.547391197293, 38.5144413169673 ]
+            }
+        })
 
-        t.deepEquals(cot.type(), 'b-a-o-pan', 'Type should be b-a-o-pan');
+        if (!cot.raw.event.detail) {
+            throw new Error('No Detail Section');
+        } else {
+            expect(cot.raw.event.detail['_flow-tags_']).toBeDefined();
+            delete cot.raw.event.detail['_flow-tags_'];
 
-        t.deepEquals(cot.raw.event.detail.emergency, {
-            _attributes: { type: 'Ring The Bell' },
-            _text: 'UNKNOWN'
-        }, 'Detail should match expected values');
-    }
+            expect(cot.type()).toBe('b-a-g');
 
-    t.end();
-});
-
-test('COT Emergency - GeoFence Breached', async (t) => {
-    const cot = await CoTParser.from_geojson({
-        id: '6da80127-44d4-4bf0-89bd-ecd326afaef1',
-        type: 'Feature',
-        properties: {
-            callsign: 'Example Emergency',
-            type: 'b-a-g',
-            how: 'm-g'
-        },
-        geometry: {
-            type: 'Point',
-            coordinates: [ -108.547391197293, 38.5144413169673 ]
+            expect(cot.raw.event.detail.emergency).toEqual({
+                _attributes: { type: 'Geo-fence Breached' },
+                _text: 'Example Emergency'
+            });
         }
-    })
+    });
 
-    if (!cot.raw.event.detail) {
-        t.fail('No Detail Section')
-    } else {
-        t.ok(cot.raw.event.detail['_flow-tags_']);
-        delete cot.raw.event.detail['_flow-tags_'];
+    test('COT Emergency - GeoFence Breached - No Callsign', async () => {
+        const cot = await CoTParser.from_geojson({
+            id: '6da80127-44d4-4bf0-89bd-ecd326afaef1',
+            type: 'Feature',
+            properties: {
+                type: 'b-a-g',
+                how: 'm-g'
+            },
+            geometry: {
+                type: 'Point',
+                coordinates: [ -108.547391197293, 38.5144413169673 ]
+            }
+        })
 
-        t.deepEquals(cot.type(), 'b-a-g', 'Type should be b-a-g');
+        if (!cot.raw.event.detail) {
+            throw new Error('No Detail Section');
+        } else {
+            expect(cot.raw.event.detail['_flow-tags_']).toBeDefined();
+            delete cot.raw.event.detail['_flow-tags_'];
 
-        t.deepEquals(cot.raw.event.detail.emergency, {
-            _attributes: { type: 'Geo-fence Breached' },
-            _text: 'Example Emergency'
-        }, 'Detail should match expected values');
-    }
+            expect(cot.type()).toBe('b-a-g');
 
-    t.end();
-});
-
-test('COT Emergency - GeoFence Breached - No Callsign', async (t) => {
-    const cot = await CoTParser.from_geojson({
-        id: '6da80127-44d4-4bf0-89bd-ecd326afaef1',
-        type: 'Feature',
-        properties: {
-            type: 'b-a-g',
-            how: 'm-g'
-        },
-        geometry: {
-            type: 'Point',
-            coordinates: [ -108.547391197293, 38.5144413169673 ]
+            expect(cot.raw.event.detail.emergency).toEqual({
+                _attributes: { type: 'Geo-fence Breached' },
+                _text: 'UNKNOWN'
+            });
         }
-    })
-
-    if (!cot.raw.event.detail) {
-        t.fail('No Detail Section')
-    } else {
-        t.ok(cot.raw.event.detail['_flow-tags_']);
-        delete cot.raw.event.detail['_flow-tags_'];
-
-        t.deepEquals(cot.type(), 'b-a-g', 'Type should be b-a-g');
-
-        t.deepEquals(cot.raw.event.detail.emergency, {
-            _attributes: { type: 'Geo-fence Breached' },
-            _text: 'UNKNOWN'
-        }, 'Detail should match expected values');
-    }
-
-    t.end();
+    });
 });

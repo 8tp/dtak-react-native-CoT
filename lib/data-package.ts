@@ -17,7 +17,10 @@ import AJV from 'ajv';
 const fs = {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     mkdirSync: (dirPath: string, _options?: { recursive?: boolean }) => {
-        RNFS.mkdir(dirPath).catch(() => { });
+        const result = RNFS.mkdir(dirPath);
+        if (result && typeof result.catch === 'function') {
+            result.catch(() => { });
+        }
     },
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     createReadStream: (_filePath: string) => {

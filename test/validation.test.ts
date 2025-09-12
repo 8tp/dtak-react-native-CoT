@@ -1,13 +1,10 @@
-import test from 'tape';
+import { describe, test, expect } from 'vitest';
 import { CoTParser } from '../index.js';
 
-test('await CoTParser.from_xml - Invalid', async (t) => {
-    try {
-        await CoTParser.from_xml('<not-cot-xml test="1"/>');
-        t.fail('Shoult not parse invalid CoT XML');
-    } catch (err) {
-        t.ok(String(err).includes('Cannot read properties of undefined'));
-    }
-
-    t.end();
+describe('Validation', () => {
+    test('await CoTParser.from_xml - Invalid', async () => {
+        await expect(async () => {
+            await CoTParser.from_xml('<not-cot-xml test="1"/>');
+        }).rejects.toThrow(/Cannot read properties of undefined/);
+    });
 });

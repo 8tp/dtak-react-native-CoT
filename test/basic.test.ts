@@ -1,94 +1,58 @@
-import test from 'tape';
+import { describe, test, expect } from 'vitest';
 import { CoTParser } from '../index.js';
 
-test('COT.callsign', async (t) => {
-    const cot = await CoTParser.from_geojson({
-        "id": "123",
-        "type": "Feature",
-        "path": "/",
-        "properties": {
-            "type": "a-f-G",
-            "how": "m-g",
-            "callsign": "BasicTest",
-            "center": [ 1.1, 2.2, 0 ],
-            "time": "2023-08-04T15:17:43.649Z",
-            "start": "2023-08-04T15:17:43.649Z",
-            "stale": "2023-08-04T15:17:43.649Z",
-            "metadata": {}
-        },
-        "geometry": {
-            "type": "Point",
-            "coordinates": [1.1, 2.2, 0]
-        }
+const basicFeature = {
+    "id": "123",
+    "type": "Feature" as const,
+    "path": "/",
+    "properties": {
+        "type": "a-f-G",
+        "how": "m-g",
+        "callsign": "BasicTest",
+        "center": [ 1.1, 2.2, 0 ],
+        "time": "2023-08-04T15:17:43.649Z",
+        "start": "2023-08-04T15:17:43.649Z",
+        "stale": "2023-08-04T15:17:43.649Z",
+        "metadata": {}
+    },
+    "geometry": {
+        "type": "Point" as const,
+        "coordinates": [1.1, 2.2, 0]
+    }
+};
+
+describe('CoT Basic Functions', () => {
+    test('COT.callsign', async () => {
+        const cot = await CoTParser.from_geojson(basicFeature);
+
+        expect(cot.callsign()).toBe('BasicTest');
+        expect(cot.callsign('Reassign')).toBe('Reassign');
+        expect(cot.callsign()).toBe('Reassign');
     });
 
-    t.equals(cot.callsign(), 'BasicTest');
-    t.equals(cot.callsign('Reassign'), 'Reassign');
-    t.equals(cot.callsign(), 'Reassign');
+    test('COT.type', async () => {
+        const cot = await CoTParser.from_geojson(basicFeature);
 
-    t.end();
-});
-
-test('COT.type', async (t) => {
-    const cot = await CoTParser.from_geojson({
-        "id": "123",
-        "type": "Feature",
-        "path": "/",
-        "properties": {
-            "type": "a-f-G",
-            "how": "m-g",
-            "callsign": "BasicTest",
-            "center": [ 1.1, 2.2, 0 ],
-            "time": "2023-08-04T15:17:43.649Z",
-            "start": "2023-08-04T15:17:43.649Z",
-            "stale": "2023-08-04T15:17:43.649Z",
-            "metadata": {}
-        },
-        "geometry": {
-            "type": "Point",
-            "coordinates": [1.1, 2.2, 0]
-        }
+        expect(cot.type()).toBe('a-f-G');
+        expect(cot.type('u-d-f')).toBe('u-d-f');
+        expect(cot.type()).toBe('u-d-f');
     });
 
-    t.equals(cot.type(), 'a-f-G');
-    t.equals(cot.type('u-d-f'), 'u-d-f');
-    t.equals(cot.type(), 'u-d-f');
+    test('COT.archived', async () => {
+        const cot = await CoTParser.from_geojson(basicFeature);
 
-    t.end();
-});
+        expect(cot.archived()).toBe(false);
+        expect(cot.archived(true)).toBe(true);
 
-test('COT.archived', async (t) => {
-    const cot = await CoTParser.from_geojson({
-        "id": "123",
-        "type": "Feature",
-        "path": "/",
-        "properties": {
-            "type": "a-f-G",
-            "how": "m-g",
-            "callsign": "BasicTest",
-            "center": [ 1.1, 2.2, 0 ],
-            "time": "2023-08-04T15:17:43.649Z",
-            "start": "2023-08-04T15:17:43.649Z",
-            "stale": "2023-08-04T15:17:43.649Z",
-            "metadata": {}
-        },
-        "geometry": {
-            "type": "Point",
-            "coordinates": [1.1, 2.2, 0]
-        }
+        const geojsonArchived = await CoTParser.to_geojson(cot);
+        expect(geojsonArchived.properties.archived).toBe(true);
+
+        expect(cot.archived()).toBe(true);
+        expect(cot.archived(false)).toBe(false);
+        expect(cot.archived()).toBe(false);
+
+        const geojsonNotArchived = await CoTParser.to_geojson(cot);
+        expect(geojsonNotArchived.properties.archived).toBeUndefined();
     });
-
-    t.equals(cot.archived(), false);
-    t.equals(cot.archived(true), true);
-
-    t.equals((await CoTParser.to_geojson(cot)).properties.archived, true)
-
-    t.equals(cot.archived(), true);
-    t.equals(cot.archived(false), false);
-    t.equals(cot.archived(), false);
-
-    t.equals((await CoTParser.to_geojson(cot)).properties.archived, undefined)
-
-    t.end();
 });
 

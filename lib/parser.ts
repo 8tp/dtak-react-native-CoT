@@ -22,7 +22,7 @@ import AJV from 'ajv';
 
 // React Native compatible path resolution
 // In React Native, you'll need to bundle the proto files or use a different approach
-const protoPath = './proto/takmessage.proto'; // This would need to be adjusted based on your React Native setup
+const protoPath = './lib/proto/takmessage.proto'; // This would need to be adjusted based on your React Native setup
 const RootMessage = await protobuf.load(protoPath);
 
 // For React Native, package.json reading would need to be handled differently

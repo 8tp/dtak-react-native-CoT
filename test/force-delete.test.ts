@@ -1,0 +1,47 @@
+import { describe, test, expect } from 'vitest';
+import { ForceDelete } from '../index.js';
+
+describe('ForceDelete Tests', () => {
+    test('ForceDelete - Basic', () => {
+        const cot = new ForceDelete('delete-uid');
+
+        if (!cot.raw.event.detail) {
+            throw new Error('No Detail Section')
+        } else {
+            expect(typeof cot.raw.event._attributes.time).toBe('string');
+            cot.raw.event._attributes.time = '2024-04-01'
+            expect(typeof cot.raw.event._attributes.start).toBe('string');
+            cot.raw.event._attributes.start = '2024-04-01'
+            expect(typeof cot.raw.event._attributes.stale).toBe('string');
+            cot.raw.event._attributes.stale = '2024-04-01'
+
+            expect(cot.raw).toEqual({
+                event: {
+                    _attributes: {
+                        uid: 'delete-uid',
+                        version: '2.0',
+                        type: 't-x-d-d',
+                        how: 'm-g',
+
+                        time: '2024-04-01',
+                        stale: '2024-04-01',
+                        start: '2024-04-01'
+                    },
+                    point: {
+                        _attributes: { lat: 0.000000, lon: 0.000000, hae: 0.0, ce: 9999999.0, le: 9999999.0 }
+                    },
+                    detail: {
+                        __forcedelete: {},
+                        link: {
+                            _attributes: {
+                                uid: 'delete-uid',
+                                type: 'none',
+                                relation: 'none'
+                            }
+                        },
+                    }
+                }
+            });
+        }
+    });
+});
