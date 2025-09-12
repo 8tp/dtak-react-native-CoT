@@ -26,7 +26,7 @@ describe('FlowTags', () => {
         });
 
         expect(cot.raw.event.detail).toBeDefined();
-        
+
         if (cot.raw.event.detail && cot.raw.event.detail['_flow-tags_']) {
             expect(cot.raw.event.detail['_flow-tags_']).toBeDefined();
             expect(typeof cot.raw.event.detail['_flow-tags_'][`NodeCoT-${pkg.version}`]).toBe('string');
