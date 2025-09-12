@@ -19,14 +19,14 @@ import JSONCoT, { Detail } from './types/types.js'
 import CoT from './cot.js';
 import type { CoTOptions } from './cot.js';
 import AJV from 'ajv';
-import fs from 'fs';
-import path from 'node:path';
-import { fileURLToPath } from 'node:url';
 
-const protoPath = path.join(path.dirname(fileURLToPath(import.meta.url)), 'proto', 'takmessage.proto');
+// React Native compatible path resolution
+// In React Native, you'll need to bundle the proto files or use a different approach
+const protoPath = './proto/takmessage.proto'; // This would need to be adjusted based on your React Native setup
 const RootMessage = await protobuf.load(protoPath);
 
-const pkg = JSON.parse(String(fs.readFileSync(new URL('../package.json', import.meta.url))));
+// For React Native, package.json reading would need to be handled differently
+const pkg = { version: '14.7.9' }; // Hardcoded for now, or read from a bundled file
 
 const checkXML = (new AJV({
     allErrors: true,
@@ -49,8 +49,8 @@ export class CoTParser {
         opts: {
             flow: boolean
         } = {
-            flow: true
-        }
+                flow: true
+            }
     ): CoT {
         if (opts.flow === undefined) opts.flow = true;
 
@@ -121,7 +121,7 @@ export class CoTParser {
     static from_xml(
         raw: Buffer | string,
         opts: CoTOptions = {}
-   ): CoT {
+    ): CoT {
         const cot = new CoT(
             xml2js(String(raw), { compact: true }) as Static<typeof JSONCoT>,
             opts
@@ -159,7 +159,7 @@ export class CoTParser {
 
         let key: keyof Static<typeof Detail>;
         for (key in detail) {
-            if(['contact', 'group', 'precisionlocation', 'status', 'takv', 'track'].includes(key)) {
+            if (['contact', 'group', 'precisionlocation', 'status', 'takv', 'track'].includes(key)) {
                 msg.cotEvent.detail[key] = detail[key]._attributes;
                 delete detail[key]
             }

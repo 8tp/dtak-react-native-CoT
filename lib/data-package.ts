@@ -1,21 +1,65 @@
-import { createHash } from 'node:crypto';
-import { pipeline } from 'stream/promises';
+import * as CryptoJS from 'crypto-js';
 import { rimraf } from 'rimraf'
 import type { Static } from '@sinclair/typebox'
 import { Type } from '@sinclair/typebox'
 import Err from '@openaddresses/batch-error';
-import archiver from 'archiver';
 import StreamZip from 'node-stream-zip'
-import { Readable } from 'node:stream';
+import { Readable } from 'readable-stream';
 import { v4 as randomUUID } from 'uuid';
 import CoT from './cot.js';
 import { CoTParser } from './parser.js';
 import xmljs from 'xml-js';
-import os from 'node:os';
-import fs from 'node:fs';
-import fsp from 'node:fs/promises';
-import path from 'node:path';
+import RNFS from 'react-native-fs';
+import path from 'path';
 import AJV from 'ajv';
+
+// React Native compatibility helpers
+const fs = {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    mkdirSync: (dirPath: string, _options?: { recursive?: boolean }) => {
+        RNFS.mkdir(dirPath).catch(() => { });
+    },
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    createReadStream: (_filePath: string) => {
+        // For React Native, we'll need to handle streams differently
+        // This would need actual implementation based on your React Native setup
+        throw new Error('createReadStream not implemented for React Native');
+    },
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    createWriteStream: (_filePath: string) => {
+        // For React Native, we'll need to handle streams differently
+        throw new Error('createWriteStream not implemented for React Native');
+    }
+};
+
+const fsp = {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    mkdir: async (dirPath: string, _options?: { recursive?: boolean }) => {
+        await RNFS.mkdir(dirPath);
+    },
+    readFile: async (filePath: string): Promise<Buffer> => {
+        const content = await RNFS.readFile(filePath, 'utf8');
+        return Buffer.from(content, 'utf8');
+    },
+    access: async (filePath: string) => {
+        const exists = await RNFS.exists(filePath);
+        if (!exists) throw new Error('File does not exist');
+    },
+    unlink: async (filePath: string) => {
+        await RNFS.unlink(filePath);
+    },
+    writeFile: async (filePath: string, data: string | Buffer | Readable) => {
+        if (data instanceof Readable) {
+            // For streams, we'd need to implement stream reading
+            throw new Error('Readable streams not yet implemented for React Native');
+        }
+        await RNFS.writeFile(filePath, data.toString(), 'utf8');
+    }
+};
+
+const os = {
+    tmpdir: () => RNFS.TemporaryDirectoryPath
+};
 
 export const Parameter = Type.Object({
     _attributes: Type.Object({
@@ -193,11 +237,10 @@ export class DataPackage {
      * When DataPackages are uploaded to TAK Server they generally use an EUD
      * calculated Hash
      */
-    static async hash(path: string): Promise<string> {
-        const input = fs.createReadStream(path);
-        const hash = createHash('sha256');
-        await pipeline(input, hash);
-        return hash.digest('hex');
+    static async hash(filePath: string): Promise<string> {
+        // Read the file content and hash it
+        const content = await RNFS.readFile(filePath, 'base64');
+        return CryptoJS.SHA256(CryptoJS.enc.Base64.parse(content)).toString(CryptoJS.enc.Hex);
     }
 
     /**
@@ -258,7 +301,7 @@ export class DataPackage {
             if (Array.isArray(manifest.MissionPackageManifest.Contents.Content)) {
                 pkg.contents = manifest.MissionPackageManifest.Contents.Content;
             } else if (manifest.MissionPackageManifest.Contents.Content) {
-                pkg.contents = [ manifest.MissionPackageManifest.Contents.Content ];
+                pkg.contents = [manifest.MissionPackageManifest.Contents.Content];
             }
 
             for (const param of manifest.MissionPackageManifest.Configuration.Parameter) {
@@ -307,7 +350,7 @@ export class DataPackage {
             _attributes: { ignore: ignore, zipEntry },
             Parameter: [{
                 _attributes: { name: 'uid', value: uid },
-            },{
+            }, {
                 _attributes: { name: 'name', value: name ?? path.parse(zipEntry).base }
             }]
         });
@@ -513,8 +556,8 @@ export class DataPackage {
     async addCoT(cot: CoT, opts: {
         ignore: boolean
     } = {
-        ignore: false
-    }): Promise<void> {
+            ignore: false
+        }): Promise<void> {
         if (this.destroyed) throw new Err(400, null, 'Attempt to access Data Package after it has been destroyed');
 
         const name = cot.callsign();
@@ -543,15 +586,14 @@ export class DataPackage {
         await fsp.mkdir(this.path + '/raw/MANIFEST', { recursive: true });
         await fsp.writeFile(this.path + '/raw/MANIFEST/manifest.xml', this.manifest());
 
-        return new Promise((resolve) => {
-            const archive = archiver('zip', { zlib: { level: 9 } });
-            const output = fs.createWriteStream(this.path + `/${this.settings.uid}.zip`)
-            archive.pipe(output);
-            output.on('close', () => {
-                return resolve(this.path + `/${this.settings.uid}.zip`);
-            });
-            archive.directory(this.path + '/raw/', '/');
-            archive.finalize()
-        });
+        // For React Native, we'll need to implement a different approach for creating archives
+        // This is a placeholder implementation that would need platform-specific code
+        const zipPath = this.path + `/${this.settings.uid}.zip`;
+
+        // Note: In a real React Native implementation, you would use a library like
+        // react-native-zip-archive or similar to create the zip file
+        throw new Error('Archive creation not yet implemented for React Native. You would need to use a React Native-specific zip library.');
+
+        return zipPath;
     }
 }

@@ -1,9 +1,17 @@
-import fsp from 'node:fs/promises';
+import RNFS from 'react-native-fs';
 import xmljs from 'xml-js';
 import type { Static } from '@sinclair/typebox';
 import TypeValidator from '../utils/type.js';
 import MilSymType, { StandardIdentity, Domain } from '../utils/2525.js';
 import { Type } from '@sinclair/typebox'
+
+// React Native compatible fs wrapper
+const fsp = {
+    readFile: async (filePath: string): Promise<Buffer> => {
+        const content = await RNFS.readFile(filePath, 'utf8');
+        return Buffer.from(content, 'utf8');
+    }
+};
 
 export const AugmentedType = Type.Object({
     cot: Type.String(),
@@ -82,7 +90,10 @@ export default class CoTTypes {
     }
 
     static async load(): Promise<CoTTypes> {
-        const xml = xmljs.xml2js(String(await fsp.readFile(new URL('cot-types.xml', import.meta.url))), { compact: true })
+        // In React Native, you'll need to bundle the XML file or use a different approach
+        // For now, using a placeholder path - this would need to be adjusted based on your React Native setup
+        const xmlPath = './cot-types.xml'; // This would need to be bundled or accessible in React Native
+        const xml = xmljs.xml2js(String(await fsp.readFile(xmlPath)), { compact: true })
 
         const types = TypeValidator.type(TypeFormat, xml);
 
