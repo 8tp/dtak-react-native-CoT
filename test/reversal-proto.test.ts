@@ -1,14 +1,29 @@
 import type { Static } from '@sinclair/typebox';
 import type { Feature } from '../lib/types/feature.js';
-import fs from 'node:fs/promises';
-import path from 'node:path';
+import RNFS from 'react-native-fs';
+import path from 'path';
 import test from 'tape';
 import CoT, { CoTParser } from '../index.js';
-import { fileURLToPath } from 'node:url';
 
-for (const fixturename of await fs.readdir(new URL('./fixtures/', import.meta.url))) {
+// React Native compatible fs wrapper
+const fs = {
+    readFile: async (filePath: string): Promise<Buffer> => {
+        const content = await RNFS.readFile(filePath, 'utf8');
+        return Buffer.from(content, 'utf8');
+    },
+    readdir: async (dirPath: string): Promise<string[]> => {
+        const result = await RNFS.readDir(dirPath);
+        return result.map(item => item.name);
+    }
+};
+
+// React Native compatible directory resolution - you'd need to bundle these files
+const fixturesDir = './test/fixtures/'; // This would need to be adjusted based on your React Native setup
+
+for (const fixturename of await fs.readdir(fixturesDir)) {
     test(`Protobuf Reversal Tests: ${fixturename}`, async (t) => {
-        const fixture: Static<typeof Feature> = JSON.parse(String(await fs.readFile(path.join(path.parse(fileURLToPath(import.meta.url)).dir, 'fixtures/', fixturename))));
+        const fixturePath = path.join(fixturesDir, fixturename);
+        const fixture: Static<typeof Feature> = JSON.parse(String(await fs.readFile(fixturePath)));
         const geo = await CoTParser.from_geojson(fixture)
         const intermediate = await CoTParser.to_proto(geo);
         const output = await CoTParser.from_proto(intermediate);

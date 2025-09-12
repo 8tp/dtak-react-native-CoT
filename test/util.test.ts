@@ -1,34 +1,31 @@
-import test from 'tape';
 import Util from '../lib/utils/util.js';
 
-test('Util.cot_date - default', (t) => {
-    const res = Util.cot_date();
+describe('Util.cot_date', () => {
+    test('default behavior', () => {
+        const res = Util.cot_date();
 
-    // Within 100ms of current time
-    t.ok(+new Date(res.time) > +new Date() - 100, 'res.time within 100ms of current time');
+        // Within 100ms of current time
+        expect(+new Date(res.time)).toBeGreaterThan(+new Date() - 100);
 
-    // res.start is the same as res.time
-    t.equals(+new Date(res.start), +new Date(res.time), 'by default res.start === res.time');
+        // res.start is the same as res.time
+        expect(+new Date(res.start)).toBe(+new Date(res.time));
 
-    // Approx 20s ahead of start
-    t.ok(+new Date(res.stale) > +new Date(res.start) + 20 * 1000 - 100);
-    t.ok(+new Date(res.stale) < +new Date(res.start) + 20 * 1000 + 100);
+        // Approx 20s ahead of start
+        expect(+new Date(res.stale)).toBeGreaterThan(+new Date(res.start) + 20 * 1000 - 100);
+        expect(+new Date(res.stale)).toBeLessThan(+new Date(res.start) + 20 * 1000 + 100);
+    });
 
-    t.end();
-});
+    test('with custom stale time', () => {
+        const res = Util.cot_date(null, null, 1000);
 
-test('Util.cot_date - stale', (t) => {
-    const res = Util.cot_date(null, null, 1000);
+        // Within 100ms of current time
+        expect(+new Date(res.time)).toBeGreaterThan(+new Date() - 100);
 
-    // Within 100ms of current time
-    t.ok(+new Date(res.time) > +new Date() - 100, 'res.time within 100ms of current time');
+        // res.start is the same as res.time
+        expect(+new Date(res.start)).toBe(+new Date(res.time));
 
-    // res.start is the same as res.time
-    t.equals(+new Date(res.start), +new Date(res.time), 'by default res.start === res.time');
-
-    // Approx 1s ahead of start
-    t.ok(+new Date(res.stale) > +new Date(res.start) + 1 * 1000 - 100);
-    t.ok(+new Date(res.stale) < +new Date(res.start) + 1 * 1000 + 100);
-
-    t.end();
+        // Approx 1s ahead of start
+        expect(+new Date(res.stale)).toBeGreaterThan(+new Date(res.start) + 1 * 1000 - 100);
+        expect(+new Date(res.stale)).toBeLessThan(+new Date(res.start) + 1 * 1000 + 100);
+    });
 });

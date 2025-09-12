@@ -1,10 +1,26 @@
 import { DataPackage, CoTParser } from '../index.js'
 import stream2buffer from './stream.js';
-import fs from 'node:fs';
 import test from 'tape';
 
+// React Native compatible fs wrapper
+const fs = {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    readFileSync: (_filePath: string): Buffer => {
+        // Note: This is synchronous in the original, but RNFS is async
+        // In a real React Native implementation, you'd need to handle this differently
+        throw new Error('Synchronous file reading not supported in React Native');
+    },
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    createReadStream: (_filePath: string) => {
+        // For React Native, we'll need to handle streams differently
+        throw new Error('createReadStream not implemented for React Native');
+    }
+};
+
 test(`DataPackage CoT Parsing: CameraCOTs.zip`, async (t) => {
-    const pkg = await DataPackage.parse(new URL('./packages/CameraCOTs.zip', import.meta.url).pathname, {
+    // React Native compatible path - you'd need to bundle the test packages
+    const packagePath = './test/packages/CameraCOTs.zip'; // This would need to be adjusted
+    const pkg = await DataPackage.parse(packagePath, {
         cleanup: false
     });
 
@@ -45,7 +61,7 @@ test(`DataPackage CoT Writing`, async (t) => {
         properties: {
             type: 'a-h-B'
         },
-        geometry: { type: 'Point', coordinates: [0,0] }
+        geometry: { type: 'Point', coordinates: [0, 0] }
     }));
 
     pkg.settings.uid = 'top-123';
@@ -96,7 +112,7 @@ test(`DataPackage CoT Writing`, async (t) => {
         properties: {
             type: 'a-h-B'
         },
-        geometry: { type: 'Point', coordinates: [0,0] }
+        geometry: { type: 'Point', coordinates: [0, 0] }
     }));
 
     pkg.settings.uid = 'top-123';

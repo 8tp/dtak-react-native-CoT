@@ -1,12 +1,27 @@
-import fs from 'node:fs/promises';
-import path from 'node:path';
+import RNFS from 'react-native-fs';
+import path from 'path';
 import test from 'tape';
 import { Basemap } from '../index.js';
-import { fileURLToPath } from 'node:url';
 
-for (const fixturename of await fs.readdir(new URL('./basemaps/', import.meta.url))) {
+// React Native compatible fs wrapper
+const fs = {
+    readFile: async (filePath: string): Promise<Buffer> => {
+        const content = await RNFS.readFile(filePath, 'utf8');
+        return Buffer.from(content, 'utf8');
+    },
+    readdir: async (dirPath: string): Promise<string[]> => {
+        const result = await RNFS.readDir(dirPath);
+        return result.map(item => item.name);
+    }
+};
+
+// React Native compatible directory resolution - you'd need to bundle these files
+const basemapsDir = './test/basemaps/'; // This would need to be adjusted based on your React Native setup
+
+for (const fixturename of await fs.readdir(basemapsDir)) {
     test(`Basemap Test: ${fixturename}`, async (t) => {
-        const fixture = String(await fs.readFile(path.join(path.parse(fileURLToPath(import.meta.url)).dir, 'basemaps/', fixturename)));
+        const fixturePath = path.join(basemapsDir, fixturename);
+        const fixture = String(await fs.readFile(fixturePath));
         const container = await Basemap.parse(fixture);
 
         t.ok(container.raw.customMapSource.name._text.length)
