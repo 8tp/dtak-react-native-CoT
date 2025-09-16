@@ -82,7 +82,7 @@ describe('Range & Bearing Tests', () => {
                 properties: {
                     archived: true,
                     callsign: 'R&B 1',
-                    center: [ -108.7395013, 39.0981196, 0 ],
+                    center: [-108.7395013, 39.0981196, 0],
                     type: 'u-rb-a',
                     how: 'h-e',
                     labels: false,
@@ -99,7 +99,7 @@ describe('Range & Bearing Tests', () => {
                 },
                 geometry: {
                     type: 'LineString',
-                    coordinates: [ [ -108.7395013, 39.0981196 ], [  -108.5719110069878, 39.06967421349145 ]]
+                    coordinates: [[-108.7395013, 39.0981196], [-108.5719110069878, 39.06967421349145]]
                 }
             });
         }

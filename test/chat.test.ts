@@ -72,8 +72,8 @@ describe('DirectChat', () => {
                             chatgrp: {
                                 _attributes: {
                                     uid0: "654321",
-                                    uid1:"123456",
-                                    id:"123456"
+                                    uid1: "123456",
+                                    id: "123456"
                                 }
                             }
                         },

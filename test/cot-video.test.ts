@@ -77,7 +77,7 @@ describe('Video CoT Tests', () => {
                     point: { _attributes: { lat: 38.2089117, lon: -104.6282182, hae: 1455.285, ce: 9999999.0, le: 9999999.0 } },
                     detail: {
                         status: { _attributes: { readiness: 'true' } },
-                        archive: [ {}, {} ],
+                        archive: [{}, {}],
                         __video: {
                             _attributes: {
                                 uid: '05bf6c59-c7ea-465f-8337-da16ddcc82d4',
@@ -143,7 +143,7 @@ describe('Video CoT Tests', () => {
                 path: '/',
                 properties: {
                     callsign: 'I-25 .8 mi S CO-45',
-                    center: [ -104.6282182, 38.2089117, 1455.285 ],
+                    center: [-104.6282182, 38.2089117, 1455.285],
                     type: 'b-m-p-s-p-loc',
                     how: 'h-g-i-g-o',
                     time: '2023-11-15T20:48:16.097Z',
@@ -194,7 +194,7 @@ describe('Video CoT Tests', () => {
                 },
                 geometry: {
                     type: 'Point',
-                    coordinates: [ -104.6282182, 38.2089117, 1455.285 ]
+                    coordinates: [-104.6282182, 38.2089117, 1455.285]
                 }
             }).toEqual(await CoTParser.to_geojson(cot));
         }

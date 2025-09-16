@@ -8,7 +8,7 @@ describe('CoT Classification Tests', () => {
             properties: {
                 type: 'a-f-B'
             },
-            geometry: { type: 'Point', coordinates: [0,0] }
+            geometry: { type: 'Point', coordinates: [0, 0] }
         });
 
         expect(cot.is_friend()).toBe(true);
@@ -18,7 +18,7 @@ describe('CoT Classification Tests', () => {
             properties: {
                 type: 'a-h-B'
             },
-            geometry: { type: 'Point', coordinates: [0,0] }
+            geometry: { type: 'Point', coordinates: [0, 0] }
         });
 
         expect(cot.is_friend()).toBe(false);
@@ -30,7 +30,7 @@ describe('CoT Classification Tests', () => {
             properties: {
                 type: 'a-h-B'
             },
-            geometry: { type: 'Point', coordinates: [0,0] }
+            geometry: { type: 'Point', coordinates: [0, 0] }
         });
 
         expect(cot.is_hostile()).toBe(true);
@@ -40,7 +40,7 @@ describe('CoT Classification Tests', () => {
             properties: {
                 type: 'a-f-B'
             },
-            geometry: { type: 'Point', coordinates: [0,0] }
+            geometry: { type: 'Point', coordinates: [0, 0] }
         });
 
         expect(cot.is_hostile()).toBe(false);
@@ -52,7 +52,7 @@ describe('CoT Classification Tests', () => {
             properties: {
                 type: 'a-u-B'
             },
-            geometry: { type: 'Point', coordinates: [0,0] }
+            geometry: { type: 'Point', coordinates: [0, 0] }
         });
 
         expect(cot.is_unknown()).toBe(true);
@@ -62,7 +62,7 @@ describe('CoT Classification Tests', () => {
             properties: {
                 type: 'a-f-B'
             },
-            geometry: { type: 'Point', coordinates: [0,0] }
+            geometry: { type: 'Point', coordinates: [0, 0] }
         });
 
         expect(cot.is_unknown()).toBe(false);
@@ -74,7 +74,7 @@ describe('CoT Classification Tests', () => {
             properties: {
                 type: 'a-p-B'
             },
-            geometry: { type: 'Point', coordinates: [0,0] }
+            geometry: { type: 'Point', coordinates: [0, 0] }
         });
 
         expect(cot.is_pending()).toBe(true);
@@ -84,7 +84,7 @@ describe('CoT Classification Tests', () => {
             properties: {
                 type: 'a-f-B'
             },
-            geometry: { type: 'Point', coordinates: [0,0] }
+            geometry: { type: 'Point', coordinates: [0, 0] }
         });
 
         expect(cot.is_pending()).toBe(false);
@@ -96,7 +96,7 @@ describe('CoT Classification Tests', () => {
             properties: {
                 type: 'a-a-B'
             },
-            geometry: { type: 'Point', coordinates: [0,0] }
+            geometry: { type: 'Point', coordinates: [0, 0] }
         });
 
         expect(cot.is_assumed()).toBe(true);
@@ -106,7 +106,7 @@ describe('CoT Classification Tests', () => {
             properties: {
                 type: 'a-f-B'
             },
-            geometry: { type: 'Point', coordinates: [0,0] }
+            geometry: { type: 'Point', coordinates: [0, 0] }
         });
 
         expect(cot.is_assumed()).toBe(false);
@@ -118,7 +118,7 @@ describe('CoT Classification Tests', () => {
             properties: {
                 type: 'a-n-B'
             },
-            geometry: { type: 'Point', coordinates: [0,0] }
+            geometry: { type: 'Point', coordinates: [0, 0] }
         });
 
         expect(cot.is_neutral()).toBe(true);
@@ -128,7 +128,7 @@ describe('CoT Classification Tests', () => {
             properties: {
                 type: 'a-f-B'
             },
-            geometry: { type: 'Point', coordinates: [0,0] }
+            geometry: { type: 'Point', coordinates: [0, 0] }
         });
 
         expect(cot.is_neutral()).toBe(false);
@@ -140,7 +140,7 @@ describe('CoT Classification Tests', () => {
             properties: {
                 type: 'a-s-B'
             },
-            geometry: { type: 'Point', coordinates: [0,0] }
+            geometry: { type: 'Point', coordinates: [0, 0] }
         });
 
         expect(cot.is_suspect()).toBe(true);
@@ -150,7 +150,7 @@ describe('CoT Classification Tests', () => {
             properties: {
                 type: 'a-f-B'
             },
-            geometry: { type: 'Point', coordinates: [0,0] }
+            geometry: { type: 'Point', coordinates: [0, 0] }
         });
 
         expect(cot.is_suspect()).toBe(false);
@@ -162,7 +162,7 @@ describe('CoT Classification Tests', () => {
             properties: {
                 type: 'a-j-B'
             },
-            geometry: { type: 'Point', coordinates: [0,0] }
+            geometry: { type: 'Point', coordinates: [0, 0] }
         });
 
         expect(cot.is_joker()).toBe(true);
@@ -172,7 +172,7 @@ describe('CoT Classification Tests', () => {
             properties: {
                 type: 'a-f-B'
             },
-            geometry: { type: 'Point', coordinates: [0,0] }
+            geometry: { type: 'Point', coordinates: [0, 0] }
         });
 
         expect(cot.is_joker()).toBe(false);
@@ -184,7 +184,7 @@ describe('CoT Classification Tests', () => {
             properties: {
                 type: 'a-k-B'
             },
-            geometry: { type: 'Point', coordinates: [0,0] }
+            geometry: { type: 'Point', coordinates: [0, 0] }
         });
 
         expect(cot.is_faker()).toBe(true);
@@ -194,7 +194,7 @@ describe('CoT Classification Tests', () => {
             properties: {
                 type: 'a-f-B'
             },
-            geometry: { type: 'Point', coordinates: [0,0] }
+            geometry: { type: 'Point', coordinates: [0, 0] }
         });
 
         expect(cot.is_faker()).toBe(false);
@@ -206,7 +206,7 @@ describe('CoT Classification Tests', () => {
             properties: {
                 type: 'a-f-A'
             },
-            geometry: { type: 'Point', coordinates: [0,0] }
+            geometry: { type: 'Point', coordinates: [0, 0] }
         });
 
         expect(cot.is_atom()).toBe(true);
@@ -216,7 +216,7 @@ describe('CoT Classification Tests', () => {
             properties: {
                 type: 'a-f-B'
             },
-            geometry: { type: 'Point', coordinates: [0,0] }
+            geometry: { type: 'Point', coordinates: [0, 0] }
         });
 
         expect(cot.is_atom()).toBe(false);
@@ -228,7 +228,7 @@ describe('CoT Classification Tests', () => {
             properties: {
                 type: 'a-f-A'
             },
-            geometry: { type: 'Point', coordinates: [0,0] }
+            geometry: { type: 'Point', coordinates: [0, 0] }
         });
 
         expect(cot.is_airborne()).toBe(true);
@@ -238,7 +238,7 @@ describe('CoT Classification Tests', () => {
             properties: {
                 type: 'a-f-B'
             },
-            geometry: { type: 'Point', coordinates: [0,0] }
+            geometry: { type: 'Point', coordinates: [0, 0] }
         });
 
         expect(cot.is_airborne()).toBe(false);
@@ -250,7 +250,7 @@ describe('CoT Classification Tests', () => {
             properties: {
                 type: 'a-f-B'
             },
-            geometry: { type: 'Point', coordinates: [0,0] }
+            geometry: { type: 'Point', coordinates: [0, 0] }
         });
 
         expect(cot.is_ground()).toBe(true);
@@ -260,7 +260,7 @@ describe('CoT Classification Tests', () => {
             properties: {
                 type: 'a-f-A'
             },
-            geometry: { type: 'Point', coordinates: [0,0] }
+            geometry: { type: 'Point', coordinates: [0, 0] }
         });
 
         expect(cot.is_ground()).toBe(false);
@@ -272,7 +272,7 @@ describe('CoT Classification Tests', () => {
             properties: {
                 type: 'a-f-B-I-B'
             },
-            geometry: { type: 'Point', coordinates: [0,0] }
+            geometry: { type: 'Point', coordinates: [0, 0] }
         });
 
         expect(cot.is_installation()).toBe(true);
@@ -282,7 +282,7 @@ describe('CoT Classification Tests', () => {
             properties: {
                 type: 'a-f-B-E-V'
             },
-            geometry: { type: 'Point', coordinates: [0,0] }
+            geometry: { type: 'Point', coordinates: [0, 0] }
         });
 
         expect(cot.is_installation()).toBe(false);
@@ -292,7 +292,7 @@ describe('CoT Classification Tests', () => {
             properties: {
                 type: 'a-f-B-I'
             },
-            geometry: { type: 'Point', coordinates: [0,0] }
+            geometry: { type: 'Point', coordinates: [0, 0] }
         });
 
         expect(cot.is_installation()).toBe(true);
@@ -304,7 +304,7 @@ describe('CoT Classification Tests', () => {
             properties: {
                 type: 'a-f-B-E-V'
             },
-            geometry: { type: 'Point', coordinates: [0,0] }
+            geometry: { type: 'Point', coordinates: [0, 0] }
         });
 
         expect(cot.is_vehicle()).toBe(true);
@@ -314,7 +314,7 @@ describe('CoT Classification Tests', () => {
             properties: {
                 type: 'a-f-B-I-B'
             },
-            geometry: { type: 'Point', coordinates: [0,0] }
+            geometry: { type: 'Point', coordinates: [0, 0] }
         });
 
         expect(cot.is_vehicle()).toBe(false);
@@ -324,7 +324,7 @@ describe('CoT Classification Tests', () => {
             properties: {
                 type: 'a-f-B-E'
             },
-            geometry: { type: 'Point', coordinates: [0,0] }
+            geometry: { type: 'Point', coordinates: [0, 0] }
         });
 
         expect(cot.is_vehicle()).toBe(true);
@@ -336,7 +336,7 @@ describe('CoT Classification Tests', () => {
             properties: {
                 type: 'a-f-B-E'
             },
-            geometry: { type: 'Point', coordinates: [0,0] }
+            geometry: { type: 'Point', coordinates: [0, 0] }
         });
 
         expect(cot.is_equipment()).toBe(true);
@@ -346,7 +346,7 @@ describe('CoT Classification Tests', () => {
             properties: {
                 type: 'a-f-B-I'
             },
-            geometry: { type: 'Point', coordinates: [0,0] }
+            geometry: { type: 'Point', coordinates: [0, 0] }
         });
 
         expect(cot.is_equipment()).toBe(false);
@@ -358,7 +358,7 @@ describe('CoT Classification Tests', () => {
             properties: {
                 type: 'a-f-S'
             },
-            geometry: { type: 'Point', coordinates: [0,0] }
+            geometry: { type: 'Point', coordinates: [0, 0] }
         });
 
         expect(cot.is_surface()).toBe(true);
@@ -368,7 +368,7 @@ describe('CoT Classification Tests', () => {
             properties: {
                 type: 'a-f-B'
             },
-            geometry: { type: 'Point', coordinates: [0,0] }
+            geometry: { type: 'Point', coordinates: [0, 0] }
         });
 
         expect(cot.is_surface()).toBe(false);
@@ -380,7 +380,7 @@ describe('CoT Classification Tests', () => {
             properties: {
                 type: 'a-f-U'
             },
-            geometry: { type: 'Point', coordinates: [0,0] }
+            geometry: { type: 'Point', coordinates: [0, 0] }
         });
 
         expect(cot.is_subsurface()).toBe(true);
@@ -390,7 +390,7 @@ describe('CoT Classification Tests', () => {
             properties: {
                 type: 'a-f-B'
             },
-            geometry: { type: 'Point', coordinates: [0,0] }
+            geometry: { type: 'Point', coordinates: [0, 0] }
         });
 
         expect(cot.is_subsurface()).toBe(false);
@@ -402,7 +402,7 @@ describe('CoT Classification Tests', () => {
             properties: {
                 type: 'a-f-A-M-F-Q'
             },
-            geometry: { type: 'Point', coordinates: [0,0] }
+            geometry: { type: 'Point', coordinates: [0, 0] }
         });
 
         expect(cot.is_uav()).toBe(true);
@@ -412,7 +412,7 @@ describe('CoT Classification Tests', () => {
             properties: {
                 type: 'a-f-A-M-F'
             },
-            geometry: { type: 'Point', coordinates: [0,0] }
+            geometry: { type: 'Point', coordinates: [0, 0] }
         });
 
         expect(cot.is_uav()).toBe(false);

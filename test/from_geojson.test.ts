@@ -217,7 +217,7 @@ describe('CoTParser.from_geojson', () => {
 
             expect(geo.raw.event.detail).toEqual({
                 contact: { _attributes: { callsign: 'UNKNOWN' } },
-                usericon: { _attributes: { iconsetpath: '66f14976-4b62-4023-8edb-d8d2ebeaa336/Public Safety Air/EMS_ROTOR.png' } }, 
+                usericon: { _attributes: { iconsetpath: '66f14976-4b62-4023-8edb-d8d2ebeaa336/Public Safety Air/EMS_ROTOR.png' } },
                 remarks: { _attributes: {}, _text: '' }
             });
         }

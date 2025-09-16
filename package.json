@@ -57,6 +57,7 @@
         "rimraf": "^6.0.0",
         "url-parse": "^1.5.10",
         "uuid": "^13.0.0",
+        "vite-tsconfig-paths": "^5.1.4",
         "xml-js": "^1.6.11"
     },
     "devDependencies": {

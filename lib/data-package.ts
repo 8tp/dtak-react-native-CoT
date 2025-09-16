@@ -42,6 +42,7 @@ const fsp = {
     },
     readFile: async (filePath: string): Promise<Buffer> => {
         const content = await RNFS.readFile(filePath, 'utf8');
+        console.log(`Reading file at ${filePath}, content: ${content}`);
         return Buffer.from(content, 'utf8');
     },
     access: async (filePath: string) => {

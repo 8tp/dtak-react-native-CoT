@@ -5,138 +5,138 @@ import { describe, test, expect } from 'vitest';
 
 describe('DataPackage Tests', () => {
     test(`DataPackage CoT Parsing: CameraCOTs.zip`, async () => {
-    const pkg = await DataPackage.parse(new URL('./packages/CameraCOTs.zip', import.meta.url).pathname, {
-        cleanup: false
+        const pkg = await DataPackage.parse(new URL('./packages/CameraCOTs.zip', import.meta.url).pathname, {
+            cleanup: false
+        });
+
+        expect(pkg.version).toBe('2');
+        expect(pkg.path).toBeDefined();
+        expect(pkg.settings).toEqual({
+            uid: 'fd4310f2-e34a-455d-b1c2-15c06b740a04',
+            name: '2024 streaming cameras - not for iTAK'
+        });
+
+        expect(pkg.contents).toEqual([
+            {
+                _attributes: { ignore: false, zipEntry: '3ecf1e30-f374-4ae6-a051-2da7084ff57d/3ecf1e30-f374-4ae6-a051-2da7084ff57d.cot' },
+                Parameter: { _attributes: { name: 'uid', value: '3ecf1e30-f374-4ae6-a051-2da7084ff57d' } }
+            }
+        ]);
+
+        const cots = await pkg.cots();
+        expect(cots.length).toBe(1);
+
+        const attachments = await pkg.attachments();
+        expect(attachments.size).toBe(0)
+
+        const files = await pkg.files();
+        expect(files.size).toBe(0)
+
+        await pkg.destroy();
     });
-
-    expect(pkg.version).toBe('2');
-    expect(pkg.path).toBeDefined();
-    expect(pkg.settings).toEqual({
-        uid: 'fd4310f2-e34a-455d-b1c2-15c06b740a04',
-        name: '2024 streaming cameras - not for iTAK'
-    });
-
-    expect(pkg.contents).toEqual([
-        {
-            _attributes: { ignore: false, zipEntry: '3ecf1e30-f374-4ae6-a051-2da7084ff57d/3ecf1e30-f374-4ae6-a051-2da7084ff57d.cot' },
-            Parameter: { _attributes: { name: 'uid', value: '3ecf1e30-f374-4ae6-a051-2da7084ff57d' } }
-        }
-    ]);
-
-    const cots = await pkg.cots();
-    expect(cots.length).toBe(1);
-
-    const attachments = await pkg.attachments();
-    expect(attachments.size).toBe(0)
-
-    const files = await pkg.files();
-    expect(files.size).toBe(0)
-
-    await pkg.destroy();
-});
 
     test(`DataPackage CoT Writing`, async () => {
-    const pkg = new DataPackage();
+        const pkg = new DataPackage();
 
-    pkg.addCoT(await CoTParser.from_geojson({
-        id: '123',
-        type: 'Feature',
-        properties: {
-            type: 'a-h-B'
-        },
-        geometry: { type: 'Point', coordinates: [0,0] }
-    }));
+        pkg.addCoT(await CoTParser.from_geojson({
+            id: '123',
+            type: 'Feature',
+            properties: {
+                type: 'a-h-B'
+            },
+            geometry: { type: 'Point', coordinates: [0, 0] }
+        }));
 
-    pkg.settings.uid = 'top-123';
-    pkg.settings.name = 'Custom 123';
+        pkg.settings.uid = 'top-123';
+        pkg.settings.name = 'Custom 123';
 
-    const path = await pkg.finalize();
+        const path = await pkg.finalize();
 
-    const pkg_parse = await DataPackage.parse(path);
+        const pkg_parse = await DataPackage.parse(path);
 
-    expect(pkg_parse.version).toBe('2');
-    expect(pkg_parse.path).toBeDefined();
-    expect(pkg_parse.settings).toEqual({
-        uid: 'top-123',
-        name: 'Custom 123'
+        expect(pkg_parse.version).toBe('2');
+        expect(pkg_parse.path).toBeDefined();
+        expect(pkg_parse.settings).toEqual({
+            uid: 'top-123',
+            name: 'Custom 123'
+        });
+
+        expect(pkg_parse.contents).toEqual([
+            {
+                _attributes: { ignore: false, zipEntry: '123/123.cot' },
+                Parameter: [
+                    { _attributes: { name: 'uid', value: '123' } },
+                    { _attributes: { name: 'name', value: 'UNKNOWN' } }
+                ]
+            }
+        ]);
+
+        const cots = await pkg_parse.cots();
+        expect(cots.length).toBe(1);
+
+        const attachments = await pkg.attachments();
+        expect(attachments.size).toBe(0)
+
+        const files = await pkg.files();
+        expect(files.size).toBe(0)
+
+        await pkg.destroy();
+        await pkg_parse.destroy();
     });
-
-    expect(pkg_parse.contents).toEqual([
-        {
-            _attributes: { ignore: false, zipEntry: '123/123.cot' },
-            Parameter: [
-                { _attributes: { name: 'uid', value: '123' } },
-                { _attributes: { name: 'name', value: 'UNKNOWN' } }
-            ]
-        }
-    ]);
-
-    const cots = await pkg_parse.cots();
-    expect(cots.length).toBe(1);
-
-    const attachments = await pkg.attachments();
-    expect(attachments.size).toBe(0)
-
-    const files = await pkg.files();
-    expect(files.size).toBe(0)
-
-    await pkg.destroy();
-    await pkg_parse.destroy();
-});
 
     test(`DataPackage CoT Writing`, async () => {
-    const pkg = new DataPackage();
+        const pkg = new DataPackage();
 
-    pkg.addCoT(await CoTParser.from_geojson({
-        id: '123',
-        type: 'Feature',
-        properties: {
-            type: 'a-h-B'
-        },
-        geometry: { type: 'Point', coordinates: [0,0] }
-    }));
+        pkg.addCoT(await CoTParser.from_geojson({
+            id: '123',
+            type: 'Feature',
+            properties: {
+                type: 'a-h-B'
+            },
+            geometry: { type: 'Point', coordinates: [0, 0] }
+        }));
 
-    pkg.settings.uid = 'top-123';
-    pkg.settings.name = 'Custom 123';
+        pkg.settings.uid = 'top-123';
+        pkg.settings.name = 'Custom 123';
 
-    const path = await pkg.finalize();
+        const path = await pkg.finalize();
 
-    const pkg_parse = await DataPackage.parse(path);
+        const pkg_parse = await DataPackage.parse(path);
 
-    t.equals(pkg_parse.version, '2');
-    t.ok(pkg_parse.path);
-    t.deepEquals(pkg_parse.settings, {
-        uid: 'top-123',
-        name: 'Custom 123'
+        expect(pkg_parse.version).toBe('2');
+        expect(pkg_parse.path).toBeTruthy();
+        expect(pkg_parse.settings).toEqual({
+            uid: 'top-123',
+            name: 'Custom 123'
+        });
+
+        expect(pkg_parse.contents).toEqual([
+            {
+                _attributes: { ignore: false, zipEntry: '123/123.cot' },
+                Parameter: [
+                    { _attributes: { name: 'uid', value: '123' } },
+                    { _attributes: { name: 'name', value: 'UNKNOWN' } }
+                ]
+            }
+        ]);
+
+        const cots = await pkg_parse.cots();
+        expect(cots.length).toBe(1);
+
+        const attachments = await pkg.attachments();
+        expect(attachments.size).toBe(0);
+
+        const files = await pkg.files();
+        expect(files.size).toBe(0);
+
+        await pkg.destroy();
+        await pkg_parse.destroy();
     });
-
-    t.deepEquals(pkg_parse.contents, [
-        {
-            _attributes: { ignore: false, zipEntry: '123/123.cot' },
-            Parameter: [
-                { _attributes: { name: 'uid', value: '123' } },
-                { _attributes: { name: 'name', value: 'UNKNOWN' } }
-            ]
-        }
-    ]);
-
-    const cots = await pkg_parse.cots();
-    t.equal(cots.length, 1);
-
-    const attachments = await pkg.attachments();
-    t.equals(attachments.size, 0)
-
-    const files = await pkg.files();
-    t.equals(files.size, 0)
-
-    await pkg.destroy();
-    await pkg_parse.destroy();
-
-    t.end();
-});
 
     test(`DataPackage CoT Parsing: QuickPic.zip`, async () => {
         const pkg = await DataPackage.parse(new URL('./packages/QuickPic.zip', import.meta.url).pathname);
+
+        console.log(`import.meta.url = ${import.meta.url}`);
 
         expect(await DataPackage.hash(new URL('./packages/QuickPic.zip', import.meta.url).pathname)).toBe('bd13db0f18ccb423833cc21c0678e0224dd15ff504c1f16c43aff03e216b82a7');
 
@@ -337,41 +337,38 @@ describe('DataPackage Tests', () => {
     });
 
     test(`MissionArchive: Testing Export`, async () => {
-    const pkg = await DataPackage.parse(new URL('./packages/MissionArchive.zip', import.meta.url).pathname, {
-        strict: false,
-        cleanup: false
-    });
+        const pkg = await DataPackage.parse(new URL('./packages/MissionArchive.zip', import.meta.url).pathname, {
+            strict: false,
+            cleanup: false
+        });
 
-    t.equals(
-        await DataPackage.hash(new URL('./packages/Iconset-FalconView.zip', import.meta.url).pathname),
-        '53622c90841d2ef66b3b508412be0ecd33f90f1cd7887295ab0c3a31ee2e7315'
-    );
+        expect(await DataPackage.hash(new URL('./packages/Iconset-FalconView.zip', import.meta.url).pathname)).toBe('53622c90841d2ef66b3b508412be0ecd33f90f1cd7887295ab0c3a31ee2e7315');
 
-    t.equals(pkg.version, '2');
-    t.ok(pkg.path);
-    t.deepEquals(pkg.settings, {
-        uid: '26f64fe4-57f1-4109-8e79-d616f8050b57',
-        name: 'Ingalls Testing',
-        mission_guid: 'cedfcdbe-5be7-4f29-92c7-216a506772b2',
-        password_hash: '',
-        creatorUid: 'ANDROID-CloudTAK-nicholas.ingalls@state.co.us',
-        create_time: '1738621323646',
-        expiration: '-1',
-        chatroom: '',
-        description: 'Data Sync Testing',
-        tool: 'public',
-        onReceiveImport: true,
-        onReceiveDelete: false,
-        mission_name: 'Ingalls Testing',
-        mission_label: 'Ingalls Testing',
-        mission_uid: 'ops.cotak.gov-8443-ssl-Ingalls Testing',
-        mission_server: 'ops.cotak.gov:8443:ssl'
-    });
+        expect(pkg.version).toBe('2');
+        expect(pkg.path).toBeTruthy();
+        expect(pkg.settings).toEqual({
+            uid: '26f64fe4-57f1-4109-8e79-d616f8050b57',
+            name: 'Ingalls Testing',
+            mission_guid: 'cedfcdbe-5be7-4f29-92c7-216a506772b2',
+            password_hash: '',
+            creatorUid: 'ANDROID-CloudTAK-nicholas.ingalls@state.co.us',
+            create_time: '1738621323646',
+            expiration: '-1',
+            chatroom: '',
+            description: 'Data Sync Testing',
+            tool: 'public',
+            onReceiveImport: true,
+            onReceiveDelete: false,
+            mission_name: 'Ingalls Testing',
+            mission_label: 'Ingalls Testing',
+            mission_uid: 'ops.cotak.gov-8443-ssl-Ingalls Testing',
+            mission_server: 'ops.cotak.gov:8443:ssl'
+        });
 
-    t.deepEquals(pkg.contents.length, 0);
+        expect(pkg.contents.length).toBe(0);
 
-    const cots = await pkg.cots();
-    t.equal(cots.length, 0);
+        const cots = await pkg.cots();
+        expect(cots.length).toBe(0);
 
         const attachments = await pkg.attachments();
         expect(attachments.size).toBe(0)

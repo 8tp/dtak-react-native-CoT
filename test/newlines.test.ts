@@ -65,7 +65,7 @@ Speed: 1</remarks><_flow-tags_ TAK-Server-e87a0e02420b44a08f6032bcf1877745="2024
                     callsign: '9T20',
                     type: 'a-f-G',
                     how: 'm-g',
-                    center: [ -105.1, 39.1, 0],
+                    center: [-105.1, 39.1, 0],
                     remarks: "Incident ID: 6841390\nMaster Incident Number: 05242024-0253042\nUnit Name: 9F20\nUnit ID: 3412\nStatus: Dispatched\nJurisdiction: Golden PD\nSpeed: 1",
                     time: '2024-06-07T15:28:48Z',
                     start: '2024-06-07T15:28:48.669Z',
@@ -75,7 +75,7 @@ Speed: 1</remarks><_flow-tags_ TAK-Server-e87a0e02420b44a08f6032bcf1877745="2024
                 },
                 geometry: {
                     type: 'Point',
-                    coordinates: [ -105.1, 39.1, 0 ]
+                    coordinates: [-105.1, 39.1, 0]
                 }
             });
         }

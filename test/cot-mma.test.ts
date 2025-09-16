@@ -3,7 +3,7 @@ import CoT, { CoTParser } from '../index.js';
 
 describe('MultiMissionAircraft CoT Tests', () => {
     test('Decode MultiMissionAircraft CoTs', async () => {
-        const cot = new CoT({"event":{"_attributes":{"version":"2.0","uid":"CO-DFPC-WLD27_CO-DFPC-WLD27-SPI","time":"2024-07-01T22:06:41Z","start":"2024-07-01T22:06:38Z","stale":"2024-07-01T22:06:58Z","type":"b-m-p-s-p-i","how":"m-g-n"},"point":{"_attributes":{"lat":40.066418,"lon":-108.322413,"hae":1899.427151,"ce":9999999,"le":9999999}},"detail":{"precisionlocation":{"_attributes":{"geopointsrc":"CALC","altsrc":"CALC"}},"contact":{"_attributes":{"name":"CO-DFPC-WLD27-SPI","callsign":"CO-DFPC-WLD27-SPI"}},"link":{"_attributes":{"uid":"CO-DFPC-WLD27_CO-DFPC-WLD27","relation":"p-p"}},"shape":{"polyline":{"_attributes":{"closed":true,"fillColor":"0","color":"-1"},"vertex":[{"_attributes":{"lat":40.059445,"lon":-108.328368}},{"_attributes":{"lat":40.061846,"lon":-108.314776}},{"_attributes":{"lat":40.075499,"lon":-108.315566}},{"_attributes":{"lat":40.071252,"lon":-108.330782}}]}},"__group":{},"_flow-tags_":{"_attributes":{"TAK-Server-e87a0e02420b44a08f6032bcf1877745":"2024-07-01T22:06:41Z"}}}}});
+        const cot = new CoT({ "event": { "_attributes": { "version": "2.0", "uid": "CO-DFPC-WLD27_CO-DFPC-WLD27-SPI", "time": "2024-07-01T22:06:41Z", "start": "2024-07-01T22:06:38Z", "stale": "2024-07-01T22:06:58Z", "type": "b-m-p-s-p-i", "how": "m-g-n" }, "point": { "_attributes": { "lat": 40.066418, "lon": -108.322413, "hae": 1899.427151, "ce": 9999999, "le": 9999999 } }, "detail": { "precisionlocation": { "_attributes": { "geopointsrc": "CALC", "altsrc": "CALC" } }, "contact": { "_attributes": { "name": "CO-DFPC-WLD27-SPI", "callsign": "CO-DFPC-WLD27-SPI" } }, "link": { "_attributes": { "uid": "CO-DFPC-WLD27_CO-DFPC-WLD27", "relation": "p-p" } }, "shape": { "polyline": { "_attributes": { "closed": true, "fillColor": "0", "color": "-1" }, "vertex": [{ "_attributes": { "lat": 40.059445, "lon": -108.328368 } }, { "_attributes": { "lat": 40.061846, "lon": -108.314776 } }, { "_attributes": { "lat": 40.075499, "lon": -108.315566 } }, { "_attributes": { "lat": 40.071252, "lon": -108.330782 } }] } }, "__group": {}, "_flow-tags_": { "_attributes": { "TAK-Server-e87a0e02420b44a08f6032bcf1877745": "2024-07-01T22:06:41Z" } } } } });
 
         if (!cot.raw.event.detail) {
             throw new Error('No Detail Section');
@@ -12,18 +12,18 @@ describe('MultiMissionAircraft CoT Tests', () => {
             delete cot.raw.event.detail['_flow-tags_'];
 
             expect({
-                "event":{
-                    "_attributes":{
-                        "version":"2.0",
-                        "uid":"CO-DFPC-WLD27_CO-DFPC-WLD27-SPI",
-                        "time":"2024-07-01T22:06:41Z",
-                        "start":"2024-07-01T22:06:38Z",
-                        "stale":"2024-07-01T22:06:58Z",
-                        "type":"b-m-p-s-p-i",
-                        "how":"m-g-n"
+                "event": {
+                    "_attributes": {
+                        "version": "2.0",
+                        "uid": "CO-DFPC-WLD27_CO-DFPC-WLD27-SPI",
+                        "time": "2024-07-01T22:06:41Z",
+                        "start": "2024-07-01T22:06:38Z",
+                        "stale": "2024-07-01T22:06:58Z",
+                        "type": "b-m-p-s-p-i",
+                        "how": "m-g-n"
                     },
-                    "point":{
-                        "_attributes":{
+                    "point": {
+                        "_attributes": {
                             "lat": 40.066418,
                             "lon": -108.322413,
                             "hae": 1899.427151,
@@ -31,41 +31,41 @@ describe('MultiMissionAircraft CoT Tests', () => {
                             "le": 9999999
                         }
                     },
-                    "detail":{
-                        "precisionlocation":{
-                            "_attributes":{
-                                "geopointsrc":"CALC",
-                                "altsrc":"CALC"
-                            }
-                        },
-                        "contact":{
-                            "_attributes":{
-                                "name":"CO-DFPC-WLD27-SPI",
-                                "callsign":"CO-DFPC-WLD27-SPI"
-                            }
-                        },
-                        "link":{
+                    "detail": {
+                        "precisionlocation": {
                             "_attributes": {
-                                "uid":"CO-DFPC-WLD27_CO-DFPC-WLD27",
-                                "relation":"p-p"
+                                "geopointsrc": "CALC",
+                                "altsrc": "CALC"
                             }
                         },
-                        "shape":{
-                            "polyline":{
-                                "_attributes":{
-                                    "closed":true,
-                                    "fillColor":"0",
-                                    "color":"-1"
+                        "contact": {
+                            "_attributes": {
+                                "name": "CO-DFPC-WLD27-SPI",
+                                "callsign": "CO-DFPC-WLD27-SPI"
+                            }
+                        },
+                        "link": {
+                            "_attributes": {
+                                "uid": "CO-DFPC-WLD27_CO-DFPC-WLD27",
+                                "relation": "p-p"
+                            }
+                        },
+                        "shape": {
+                            "polyline": {
+                                "_attributes": {
+                                    "closed": true,
+                                    "fillColor": "0",
+                                    "color": "-1"
                                 },
-                                "vertex":[
-                                    {"_attributes":{"lat":40.059445,"lon":-108.328368}},
-                                    {"_attributes":{"lat":40.061846,"lon":-108.314776}},
-                                    {"_attributes":{"lat":40.075499,"lon":-108.315566}},
-                                    {"_attributes":{"lat":40.071252,"lon":-108.330782}}
+                                "vertex": [
+                                    { "_attributes": { "lat": 40.059445, "lon": -108.328368 } },
+                                    { "_attributes": { "lat": 40.061846, "lon": -108.314776 } },
+                                    { "_attributes": { "lat": 40.075499, "lon": -108.315566 } },
+                                    { "_attributes": { "lat": 40.071252, "lon": -108.330782 } }
                                 ]
                             }
                         },
-                        "__group":{},
+                        "__group": {},
                     }
                 }
             }).toEqual(cot.raw);
@@ -78,7 +78,7 @@ describe('MultiMissionAircraft CoT Tests', () => {
                     callsign: 'CO-DFPC-WLD27-SPI',
                     type: 'b-m-p-s-p-i',
                     how: 'm-g-n',
-                    center: [ -108.322413, 40.066418, 1899.427151 ],
+                    center: [-108.322413, 40.066418, 1899.427151],
                     fill: "#000000",
                     "fill-opacity": 0,
                     stroke: "#FFFFFF",
@@ -91,19 +91,19 @@ describe('MultiMissionAircraft CoT Tests', () => {
                     },
                     metadata: {},
                     precisionlocation: {
-                      "geopointsrc": "CALC",
-                      "altsrc": "CALC"
+                        "geopointsrc": "CALC",
+                        "altsrc": "CALC"
                     },
                 },
                 geometry: {
                     type: 'Polygon',
-                    coordinates: [ [
-                        [ -108.328368, 40.059445 ],
-                        [ -108.314776, 40.061846 ],
-                        [ -108.315566, 40.075499 ],
-                        [ -108.330782, 40.071252 ],
-                        [ -108.328368, 40.059445 ],
-                    ] ]
+                    coordinates: [[
+                        [-108.328368, 40.059445],
+                        [-108.314776, 40.061846],
+                        [-108.315566, 40.075499],
+                        [-108.330782, 40.071252],
+                        [-108.328368, 40.059445],
+                    ]]
                 }
             }).toEqual(await CoTParser.to_geojson(cot));
         }

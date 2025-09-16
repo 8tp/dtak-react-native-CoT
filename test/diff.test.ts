@@ -17,7 +17,7 @@ describe('CoT Diff', () => {
             },
             geometry: {
                 type: 'Point',
-                coordinates: [ -107.72376567, 41.52309645, 1681.23725821 ]
+                coordinates: [-107.72376567, 41.52309645, 1681.23725821]
             }
         });
 
@@ -35,7 +35,7 @@ describe('CoT Diff', () => {
             },
             geometry: {
                 type: 'Point',
-                coordinates: [ -107.72376567, 41.52309645, 1681.23725821 ]
+                coordinates: [-107.72376567, 41.52309645, 1681.23725821]
             }
         });
 
@@ -54,7 +54,7 @@ describe('CoT Diff', () => {
             },
             geometry: {
                 type: 'Point',
-                coordinates: [ -107.72376567, 41.52309645, 1681.23725821 ]
+                coordinates: [-107.72376567, 41.52309645, 1681.23725821]
             }
         });
 
@@ -69,7 +69,7 @@ describe('CoT Diff', () => {
             },
             geometry: {
                 type: 'Point',
-                coordinates: [ -107.72376567, 41.52309645, 1681.23725821 ]
+                coordinates: [-107.72376567, 41.52309645, 1681.23725821]
             }
         });
 

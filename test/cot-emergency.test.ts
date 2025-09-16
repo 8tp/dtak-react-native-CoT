@@ -13,7 +13,7 @@ describe('Emergency CoT Tests', () => {
             },
             geometry: {
                 type: 'Point',
-                coordinates: [ -108.547391197293, 38.5144413169673 ]
+                coordinates: [-108.547391197293, 38.5144413169673]
             }
         })
 
@@ -42,7 +42,7 @@ describe('Emergency CoT Tests', () => {
             },
             geometry: {
                 type: 'Point',
-                coordinates: [ -108.547391197293, 38.5144413169673 ]
+                coordinates: [-108.547391197293, 38.5144413169673]
             }
         })
 
@@ -72,7 +72,7 @@ describe('Emergency CoT Tests', () => {
             },
             geometry: {
                 type: 'Point',
-                coordinates: [ -108.547391197293, 38.5144413169673 ]
+                coordinates: [-108.547391197293, 38.5144413169673]
             }
         })
 
@@ -101,7 +101,7 @@ describe('Emergency CoT Tests', () => {
             },
             geometry: {
                 type: 'Point',
-                coordinates: [ -108.547391197293, 38.5144413169673 ]
+                coordinates: [-108.547391197293, 38.5144413169673]
             }
         })
 
@@ -131,7 +131,7 @@ describe('Emergency CoT Tests', () => {
             },
             geometry: {
                 type: 'Point',
-                coordinates: [ -108.547391197293, 38.5144413169673 ]
+                coordinates: [-108.547391197293, 38.5144413169673]
             }
         })
 
@@ -160,7 +160,7 @@ describe('Emergency CoT Tests', () => {
             },
             geometry: {
                 type: 'Point',
-                coordinates: [ -108.547391197293, 38.5144413169673 ]
+                coordinates: [-108.547391197293, 38.5144413169673]
             }
         })
 
@@ -190,7 +190,7 @@ describe('Emergency CoT Tests', () => {
             },
             geometry: {
                 type: 'Point',
-                coordinates: [ -108.547391197293, 38.5144413169673 ]
+                coordinates: [-108.547391197293, 38.5144413169673]
             }
         })
 
@@ -219,7 +219,7 @@ describe('Emergency CoT Tests', () => {
             },
             geometry: {
                 type: 'Point',
-                coordinates: [ -108.547391197293, 38.5144413169673 ]
+                coordinates: [-108.547391197293, 38.5144413169673]
             }
         })
 
@@ -249,7 +249,7 @@ describe('Emergency CoT Tests', () => {
             },
             geometry: {
                 type: 'Point',
-                coordinates: [ -108.547391197293, 38.5144413169673 ]
+                coordinates: [-108.547391197293, 38.5144413169673]
             }
         })
 
@@ -278,7 +278,7 @@ describe('Emergency CoT Tests', () => {
             },
             geometry: {
                 type: 'Point',
-                coordinates: [ -108.547391197293, 38.5144413169673 ]
+                coordinates: [-108.547391197293, 38.5144413169673]
             }
         })
 

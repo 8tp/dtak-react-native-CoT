@@ -60,15 +60,15 @@ describe('iTAK CoT Message Tests', () => {
                     droid: "DFPC-iSchmidt",
                     type: 'a-f-G-E-V-C',
                     how: 'm-g',
-                    center: [ -107.72376567, 41.52309645, 1681.23725821 ],
+                    center: [-107.72376567, 41.52309645, 1681.23725821],
                     time: '2023-07-18T15:23:09.00Z',
                     start: '2023-07-18T15:23:09.00Z',
                     stale: '2023-07-18T15:25:09.00Z',
                     course: 137.23542786,
                     speed: 0,
                     contact: {
-                      "phone": "7204258729",
-                      "endpoint": "*:-1:stcp"
+                        "phone": "7204258729",
+                        "endpoint": "*:-1:stcp"
                     },
                     metadata: {},
                     group: {
@@ -76,23 +76,23 @@ describe('iTAK CoT Message Tests', () => {
                         role: 'Team Member'
                     },
                     precisionlocation: {
-                      "geopointsrc": "GPS",
-                      "altsrc": "???"
+                        "geopointsrc": "GPS",
+                        "altsrc": "???"
                     },
                     status: {
-                      "battery": "100"
+                        "battery": "100"
                     },
                     takv: {
-                      "device": "iPhone",
-                      "platform": "iTAK",
-                      "os": "16.5.1",
-                      "version": "2.7.0.609"
+                        "device": "iPhone",
+                        "platform": "iTAK",
+                        "os": "16.5.1",
+                        "version": "2.7.0.609"
                     }
 
                 },
                 geometry: {
                     type: 'Point',
-                    coordinates: [ -107.72376567, 41.52309645, 1681.23725821 ]
+                    coordinates: [-107.72376567, 41.52309645, 1681.23725821]
                 }
             }).toEqual(await CoTParser.to_geojson(cot));
         }
