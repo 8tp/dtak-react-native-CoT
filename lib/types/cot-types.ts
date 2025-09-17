@@ -7,7 +7,12 @@ import { Type } from '@sinclair/typebox'
 // Detect React Native environment
 const isReactNative = typeof navigator !== 'undefined' && navigator.product === 'ReactNative';
 
-let RNFS: any;
+// Minimal RNFS-like interface for reading files
+type RNFSLike = {
+    readFile: (filePath: string, encoding: string) => Promise<string>
+};
+
+let RNFS: RNFSLike | undefined;
 if (isReactNative) {
     try {
         // eslint-disable-next-line @typescript-eslint/no-require-imports

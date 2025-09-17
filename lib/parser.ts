@@ -20,6 +20,45 @@ import CoT from './cot.js';
 import type { CoTOptions } from './cot.js';
 import AJV from 'ajv';
 
+// Minimal type helpers to avoid use of 'any' while preserving flexibility
+type LongLike = { toNumber(): number };
+type CotEventDetail = {
+    xmlDetail?: string;
+    contact?: Record<string, unknown>;
+    group?: Record<string, unknown>;
+    precisionlocation?: Record<string, unknown>;
+    status?: Record<string, unknown>;
+    takv?: Record<string, unknown>;
+    track?: Record<string, unknown>;
+    [k: string]: unknown;
+};
+type CotEventMessage = {
+    cotEvent: {
+        [k: string]: unknown;
+        detail: CotEventDetail;
+    };
+};
+type DecodedTakMessage = {
+    cotEvent: {
+        uid: string;
+        type: string;
+        how?: string;
+        qos?: string;
+        opex?: string;
+        access?: string;
+        sendTime: LongLike;
+        startTime: LongLike;
+        staleTime: LongLike;
+        lat: number;
+        lon: number;
+        hae: number; // treat as present for typing; may be undefined at runtime
+        le: number;  // treat as present for typing; may be undefined at runtime
+        ce: number;  // treat as present for typing; may be undefined at runtime
+        detail: Record<string, unknown>;
+    };
+};
+type XmlNode = Record<string, unknown>;
+
 // React Native compatible protobuf loading
 // For React Native, we need to load protobuf definitions differently
 let RootMessage: protobuf.Root;
@@ -179,7 +218,7 @@ export class CoTParser {
         // The spread operator is important to make sure the delete doesn't modify the underlying detail object
         const detail = { ...cot.raw.event.detail };
 
-        const msg: any = {
+        const msg: CotEventMessage = {
             cotEvent: {
                 ...cot.raw.event._attributes,
                 sendTime: new Date(cot.raw.event._attributes.time).getTime(),
@@ -203,7 +242,7 @@ export class CoTParser {
         // Preserve important detail elements that have special meaning
         const preservedElements = ['archive', 'shape', 'strokeColor', 'strokeWeight', 'strokeStyle', 'fillColor', 'labels'];
         for (const elem of preservedElements) {
-            if ((detail as any)[elem]) {
+            if (Object.prototype.hasOwnProperty.call(detail, elem)) {
                 // Keep these elements in detail for xmlDetail serialization
                 // They will be properly reconstructed during from_proto
             }
@@ -259,17 +298,19 @@ export class CoTParser {
         }
 
         // Decode protobuf message - protobuf types are complex, using any for now
-        const msg: any = ProtoMessage.decode(raw);
+        const decoded: DecodedTakMessage = ProtoMessage.decode(raw) as unknown as DecodedTakMessage;
 
-        if (!msg.cotEvent) throw new Err(400, null, 'No cotEvent Data');
+        if (!decoded.cotEvent) throw new Err(400, null, 'No cotEvent Data');
 
+        // Detail structure is highly dynamic; allow index access
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const detail: Record<string, any> = {};
         const metadata: Record<string, unknown> = {};
-        for (const key in msg.cotEvent.detail) {
+        for (const key in decoded.cotEvent.detail) {
             if (key === 'xmlDetail') {
                 try {
                     // Clean up the XML data before parsing
-                    let xmlData = msg.cotEvent.detail[key];
+                    let xmlData = (decoded.cotEvent.detail as Record<string, unknown>)[key] as string | undefined;
                     if (typeof xmlData === 'string') {
                         // Remove any trailing null bytes, control characters, and invalid XML chars
                         // eslint-disable-next-line no-control-regex
@@ -281,24 +322,24 @@ export class CoTParser {
                         }
                         
                         if (xmlData) {
-                            const xml: any = xml2js(xmlData, { 
+                            const xml = xml2js(xmlData, { 
                                 compact: true,
                                 ignoreDeclaration: true,
                                 ignoreInstruction: true,
                                 ignoreComment: true,
                                 ignoreDoctype: true,
                                 sanitize: true
-                            });
+                            }) as unknown as XmlNode;
                             
                             // Handle wrapped content structure
-                            if (xml.detail) {
+                            if ((xml as Record<string, unknown>).detail) {
                                 // Content was wrapped in detail element during serialization
-                                Object.assign(detail, xml.detail);
-                            } else if (xml.root) {
+                                Object.assign(detail, (xml as Record<string, unknown>).detail as object);
+                            } else if ((xml as Record<string, unknown>).root) {
                                 // If we added a root wrapper, unwrap it
-                                Object.assign(detail, xml.root);
+                                Object.assign(detail, (xml as Record<string, unknown>).root as object);
                             } else {
-                                Object.assign(detail, xml);
+                                Object.assign(detail, xml as object);
                             }
                             
                             // Handle special reconstructions for known elements
@@ -316,23 +357,25 @@ export class CoTParser {
                 if (detail.metadata) {
                     // Handle metadata reconstruction properly
                     if (typeof detail.metadata === 'object') {
-                        for (const key in detail.metadata) {
-                            if (detail.metadata[key] && typeof detail.metadata[key] === 'object') {
-                                metadata[key] = detail.metadata[key]._text || detail.metadata[key];
+                        const meta = detail.metadata as Record<string, unknown>;
+                        for (const key in meta) {
+                            const val = meta[key];
+                            if (val && typeof val === 'object' && (val as Record<string, unknown>)._text !== undefined) {
+                                metadata[key] = (val as Record<string, unknown>)._text as unknown;
                             } else {
-                                metadata[key] = detail.metadata[key];
+                                metadata[key] = val as unknown;
                             }
                         }
                     }
                     delete detail.metadata;
                 }
             } else if (key === 'group') {
-                if (msg.cotEvent.detail[key]) {
-                    detail.__group = { _attributes: msg.cotEvent.detail[key] };
+                if ((decoded.cotEvent.detail as Record<string, unknown>)[key]) {
+                    detail.__group = { _attributes: (decoded.cotEvent.detail as Record<string, unknown>)[key] };
                 }
             } else if (['contact', 'precisionlocation', 'status', 'takv', 'track'].includes(key)) {
-                if (msg.cotEvent.detail[key]) {
-                    detail[key] = { _attributes: msg.cotEvent.detail[key] };
+                if ((decoded.cotEvent.detail as Record<string, unknown>)[key]) {
+                    (detail as Record<string, unknown>)[key] = { _attributes: (decoded.cotEvent.detail as Record<string, unknown>)[key] };
                 }
             }
         }
@@ -341,20 +384,20 @@ export class CoTParser {
             event: {
                 _attributes: {
                     version: '2.0',
-                    uid: msg.cotEvent.uid, type: msg.cotEvent.type, how: msg.cotEvent.how,
-                    qos: msg.cotEvent.qos, opex: msg.cotEvent.opex, access: msg.cotEvent.access,
-                    time: new Date(msg.cotEvent.sendTime.toNumber()).toISOString(),
-                    start: new Date(msg.cotEvent.startTime.toNumber()).toISOString(),
-                    stale: new Date(msg.cotEvent.staleTime.toNumber()).toISOString(),
+                    uid: decoded.cotEvent.uid, type: decoded.cotEvent.type, how: decoded.cotEvent.how,
+                    qos: decoded.cotEvent.qos, opex: decoded.cotEvent.opex, access: decoded.cotEvent.access,
+                    time: new Date(decoded.cotEvent.sendTime.toNumber()).toISOString(),
+                    start: new Date(decoded.cotEvent.startTime.toNumber()).toISOString(),
+                    stale: new Date(decoded.cotEvent.staleTime.toNumber()).toISOString(),
                 },
                 detail,
                 point: {
                     _attributes: {
-                        lat: msg.cotEvent.lat,
-                        lon: msg.cotEvent.lon,
-                        hae: msg.cotEvent.hae,
-                        le: msg.cotEvent.le,
-                        ce: msg.cotEvent.ce,
+                        lat: decoded.cotEvent.lat,
+                        lon: decoded.cotEvent.lon,
+                        hae: decoded.cotEvent.hae,
+                        le: decoded.cotEvent.le,
+                        ce: decoded.cotEvent.ce,
                     },
                 }
             }

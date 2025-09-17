@@ -1,5 +1,4 @@
 import * as CryptoJS from 'crypto-js';
-import { rimraf } from 'rimraf'
 import type { Static } from '@sinclair/typebox'
 import { Type } from '@sinclair/typebox'
 import Err from '@openaddresses/batch-error';
@@ -356,7 +355,8 @@ export class DataPackage {
         input = input instanceof URL ? path.normalize(decodeURIComponent(input.pathname)) : input;
         if (!opts) opts = {};
         if (opts.strict === undefined) opts.strict = true;
-        if (opts.cleanup === undefined) opts.cleanup = true;
+        // Default to keeping the input file unless explicitly asked to cleanup
+        if (opts.cleanup === undefined) opts.cleanup = false;
 
         const pkg = new DataPackage();
 
@@ -656,7 +656,20 @@ export class DataPackage {
      * Destory the underlying FS resources and prevent further mutation
      */
     async destroy(): Promise<void> {
-        await rimraf(this.path);
+        if (isReactNative && RNFS) {
+            try {
+                await RNFS.unlink(this.path);
+            } catch {
+                // ignore if already deleted
+            }
+        } else {
+            const fs = await import('fs');
+            try {
+                await fs.promises.rm(this.path, { recursive: true, force: true });
+            } catch {
+                // ignore if already deleted
+            }
+        }
         this.destroyed = true;
     }
 
