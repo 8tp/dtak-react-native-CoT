@@ -9,61 +9,116 @@ import { v4 as randomUUID } from 'uuid';
 import CoT from './cot.js';
 import { CoTParser } from './parser.js';
 import xmljs from 'xml-js';
-import RNFS from 'react-native-fs';
 import path from 'path';
 import AJV from 'ajv';
+import fs from 'fs';
+import fsp from 'fs/promises';
+import os from 'os';
 
-// React Native compatibility helpers
-const fs = {
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    mkdirSync: (dirPath: string, _options?: { recursive?: boolean }) => {
-        const result = RNFS.mkdir(dirPath);
-        if (result && typeof result.catch === 'function') {
-            result.catch(() => { });
+// Check if we're in a React Native environment
+const isReactNative = typeof navigator !== 'undefined' && navigator.product === 'ReactNative';
+
+// Conditional imports for React Native vs Node.js environment
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+let RNFS: any = null;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+let rnZip: any = null;
+
+if (isReactNative) {
+    try {
+        // eslint-disable-next-line @typescript-eslint/no-require-imports
+        RNFS = require('react-native-fs');
+        // eslint-disable-next-line @typescript-eslint/no-require-imports
+        rnZip = require('react-native-zip-archive');
+    } catch (error) {
+        console.warn('React Native modules not available:', error);
+    }
+}
+
+// Unified file system interface
+const fileSystem = {
+    mkdir: async (dirPath: string, options?: { recursive?: boolean }) => {
+        if (isReactNative && RNFS) {
+            await RNFS.mkdir(dirPath);
+        } else {
+            await import('fs').then(fs => fs.promises.mkdir(dirPath, options));
         }
     },
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    createReadStream: (_filePath: string) => {
-        // For React Native, we'll need to handle streams differently
-        // This would need actual implementation based on your React Native setup
-        throw new Error('createReadStream not implemented for React Native');
-    },
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    createWriteStream: (_filePath: string) => {
-        // For React Native, we'll need to handle streams differently
-        throw new Error('createWriteStream not implemented for React Native');
-    }
-};
-
-const fsp = {
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    mkdir: async (dirPath: string, _options?: { recursive?: boolean }) => {
-        await RNFS.mkdir(dirPath);
-    },
-    readFile: async (filePath: string): Promise<Buffer> => {
-        const content = await RNFS.readFile(filePath, 'utf8');
-        console.log(`Reading file at ${filePath}, content: ${content}`);
-        return Buffer.from(content, 'utf8');
-    },
-    access: async (filePath: string) => {
-        const exists = await RNFS.exists(filePath);
-        if (!exists) throw new Error('File does not exist');
-    },
-    unlink: async (filePath: string) => {
-        await RNFS.unlink(filePath);
+    readFile: async (filePath: string, encoding?: string): Promise<Buffer> => {
+        if (isReactNative && RNFS) {
+            const content = await RNFS.readFile(filePath, encoding || 'utf8');
+            if (encoding === 'base64') {
+                return Buffer.from(content, 'base64');
+            }
+            return Buffer.from(content, 'utf8');
+        } else {
+            return await import('fs').then(fs => fs.promises.readFile(filePath));
+        }
     },
     writeFile: async (filePath: string, data: string | Buffer | Readable) => {
         if (data instanceof Readable) {
-            // For streams, we'd need to implement stream reading
-            throw new Error('Readable streams not yet implemented for React Native');
+            throw new Error('Readable streams not yet implemented');
         }
-        await RNFS.writeFile(filePath, data.toString(), 'utf8');
+        if (isReactNative && RNFS) {
+            await RNFS.writeFile(filePath, data.toString(), 'utf8');
+        } else {
+            await import('fs').then(fs => fs.promises.writeFile(filePath, data));
+        }
+    },
+    access: async (filePath: string) => {
+        if (isReactNative && RNFS) {
+            const exists = await RNFS.exists(filePath);
+            if (!exists) throw new Error('File does not exist');
+        } else {
+            await import('fs').then(fs => fs.promises.access(filePath));
+        }
+    },
+    unlink: async (filePath: string) => {
+        if (isReactNative && RNFS) {
+            await RNFS.unlink(filePath);
+        } else {
+            await import('fs').then(fs => fs.promises.unlink(filePath));
+        }
+    },
+    createReadStream: (filePath: string) => {
+        if (isReactNative) {
+            throw new Error('createReadStream not implemented for React Native');
+        }
+        return fs.createReadStream(filePath);
+    },
+    tmpdir: () => {
+        if (isReactNative && RNFS) {
+            return RNFS.TemporaryDirectoryPath;
+        }
+        return os.tmpdir();
     }
 };
 
-const os = {
-    tmpdir: () => RNFS.TemporaryDirectoryPath
+// Unified zip interface
+const zipUtil = {
+    create: async (source: string, target: string) => {
+        if (isReactNative && rnZip) {
+            await rnZip.zip(source, target);
+            return target;
+        } else {
+            // Use archiver for Node.js
+            // eslint-disable-next-line @typescript-eslint/no-require-imports
+            const archiver = require('archiver');
+            const output = fs.createWriteStream(target);
+            const archive = archiver('zip', { zlib: { level: 9 } });
+            
+            return new Promise<string>((resolve, reject) => {
+                output.on('close', () => resolve(target));
+                archive.on('error', reject);
+                archive.pipe(output);
+                archive.directory(source, false);
+                archive.finalize();
+            });
+        }
+    }
 };
+
+
 
 export const Parameter = Type.Object({
     _attributes: Type.Object({
@@ -168,13 +223,20 @@ export class DataPackage {
         if (opts && opts.path) {
             this.path = opts.path;
         } else {
-            this.path = os.tmpdir() + '/' + randomUUID();
+            this.path = fileSystem.tmpdir() + '/' + randomUUID();
         }
 
         this.destroyed = false;
-        fs.mkdirSync(this.path, {
-            recursive: true
-        });
+        // Create directory synchronously for constructor
+        if (isReactNative && RNFS) {
+            RNFS.mkdir(this.path).catch(() => {});
+        } else {
+            try {
+                fs.mkdirSync(this.path, { recursive: true });
+            } catch {
+                // Directory might already exist
+            }
+        }
         this.version = '2';
         this.unknown = {};
         this.settings = {
@@ -242,9 +304,28 @@ export class DataPackage {
      * calculated Hash
      */
     static async hash(filePath: string): Promise<string> {
-        // Read the file content and hash it
-        const content = await RNFS.readFile(filePath, 'base64');
-        return CryptoJS.SHA256(CryptoJS.enc.Base64.parse(content)).toString(CryptoJS.enc.Hex);
+        try {
+            // Read the file as binary buffer for consistent hashing
+            let content: Buffer;
+            if (isReactNative && RNFS) {
+                // In React Native, read as base64 then convert to buffer
+                const base64Content = await RNFS.readFile(filePath, 'base64');
+                content = Buffer.from(base64Content, 'base64');
+            } else {
+                // In Node.js, read directly as buffer
+                const fs = await import('fs');
+                content = await fs.promises.readFile(filePath);
+            }
+            
+            if (!content || content.length === 0) {
+                throw new Error('File content is empty or undefined');
+            }
+            
+            // Hash the raw buffer content for consistency
+            return CryptoJS.SHA256(CryptoJS.lib.WordArray.create(content)).toString(CryptoJS.enc.Hex);
+        } catch (error) {
+            throw new Error(`Failed to hash file ${filePath}: ${error}`);
+        }
     }
 
     /**
@@ -290,11 +371,11 @@ export class DataPackage {
             throw new Err(400, null, 'No MANIFEST/manifest.xml found in Data Package');
         }
 
-        await fsp.mkdir(pkg.path + '/raw', { recursive: true });
+        await fileSystem.mkdir(pkg.path + '/raw', { recursive: true });
         await zip.extract(null, pkg.path + '/raw/');
 
         if (preentries['MANIFEST/manifest.xml']) {
-            const xml = xmljs.xml2js(String(await fsp.readFile(pkg.path + '/raw/MANIFEST/manifest.xml')), { compact: true })
+            const xml = xmljs.xml2js(String(await fileSystem.readFile(pkg.path + '/raw/MANIFEST/manifest.xml')), { compact: true })
 
             checkManifest(xml);
             if (checkManifest.errors) throw new Err(400, null, `${checkManifest.errors[0].message} (${checkManifest.errors[0].instancePath})`);
@@ -337,7 +418,7 @@ export class DataPackage {
 
         await zip.close();
         if (opts.cleanup) {
-            await fsp.unlink(input);
+            await fileSystem.unlink(input);
         }
 
         return pkg;
@@ -587,17 +668,17 @@ export class DataPackage {
     async finalize(): Promise<string> {
         if (this.destroyed) throw new Err(400, null, 'Attempt to access Data Package after it has been destroyed');
 
-        await fsp.mkdir(this.path + '/raw/MANIFEST', { recursive: true });
-        await fsp.writeFile(this.path + '/raw/MANIFEST/manifest.xml', this.manifest());
+        await fileSystem.mkdir(this.path + '/raw/MANIFEST', { recursive: true });
+        await fileSystem.writeFile(this.path + '/raw/MANIFEST/manifest.xml', this.manifest());
 
-        // For React Native, we'll need to implement a different approach for creating archives
-        // This is a placeholder implementation that would need platform-specific code
+        // Create zip archive
         const zipPath = this.path + `/${this.settings.uid}.zip`;
-
-        // Note: In a real React Native implementation, you would use a library like
-        // react-native-zip-archive or similar to create the zip file
-        throw new Error('Archive creation not yet implemented for React Native. You would need to use a React Native-specific zip library.');
-
-        return zipPath;
+        
+        try {
+            await zipUtil.create(this.path + '/raw', zipPath);
+            return zipPath;
+        } catch (error) {
+            throw new Error(`Failed to create archive: ${error}`);
+        }
     }
 }

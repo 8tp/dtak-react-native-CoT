@@ -53,6 +53,7 @@
         "protobufjs": "^7.3.0",
         "react-native-fs": "^2.20.0",
         "react-native-path": "^0.0.5",
+        "react-native-zip-archive": "^6.1.2",
         "readable-stream": "^4.7.0",
         "rimraf": "^6.0.0",
         "url-parse": "^1.5.10",

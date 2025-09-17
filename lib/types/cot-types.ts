@@ -1,15 +1,33 @@
-import RNFS from 'react-native-fs';
 import xmljs from 'xml-js';
 import type { Static } from '@sinclair/typebox';
 import TypeValidator from '../utils/type.js';
 import MilSymType, { StandardIdentity, Domain } from '../utils/2525.js';
 import { Type } from '@sinclair/typebox'
 
-// React Native compatible fs wrapper
+// Detect React Native environment
+const isReactNative = typeof navigator !== 'undefined' && navigator.product === 'ReactNative';
+
+let RNFS: any;
+if (isReactNative) {
+    try {
+        // eslint-disable-next-line @typescript-eslint/no-require-imports
+        RNFS = require('react-native-fs');
+    } catch {
+        // React Native FS not available
+    }
+}
+
+// Cross-platform file system wrapper
 const fsp = {
     readFile: async (filePath: string): Promise<Buffer> => {
-        const content = await RNFS.readFile(filePath, 'utf8');
-        return Buffer.from(content, 'utf8');
+        if (isReactNative && RNFS) {
+            const content = await RNFS.readFile(filePath, 'utf8');
+            return Buffer.from(content, 'utf8');
+        } else {
+            // Use Node.js fs for test environment
+            const fs = await import('fs');
+            return await fs.promises.readFile(filePath);
+        }
     }
 };
 
@@ -90,9 +108,13 @@ export default class CoTTypes {
     }
 
     static async load(): Promise<CoTTypes> {
-        // In React Native, you'll need to bundle the XML file or use a different approach
-        // For now, using a placeholder path - this would need to be adjusted based on your React Native setup
-        const xmlPath = './cot-types.xml'; // This would need to be bundled or accessible in React Native
+        // Resolve path to cot-types.xml relative to this module
+        const path = await import('path');
+        const { fileURLToPath } = await import('url');
+        const __filename = fileURLToPath(import.meta.url);
+        const __dirname = path.dirname(__filename);
+        const xmlPath = path.join(__dirname, 'cot-types.xml');
+        
         const xml = xmljs.xml2js(String(await fsp.readFile(xmlPath)), { compact: true })
 
         const types = TypeValidator.type(TypeFormat, xml);

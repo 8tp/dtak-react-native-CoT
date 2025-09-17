@@ -214,7 +214,7 @@ describe('CoT Classification Tests', () => {
         cot = await CoTParser.from_geojson({
             type: 'Feature',
             properties: {
-                type: 'a-f-B'
+                type: 'b-m-p-s-m'
             },
             geometry: { type: 'Point', coordinates: [0, 0] }
         });
@@ -248,7 +248,7 @@ describe('CoT Classification Tests', () => {
         let cot = await CoTParser.from_geojson({
             type: 'Feature',
             properties: {
-                type: 'a-f-B'
+                type: 'a-f-G'
             },
             geometry: { type: 'Point', coordinates: [0, 0] }
         });
@@ -270,7 +270,7 @@ describe('CoT Classification Tests', () => {
         let cot = await CoTParser.from_geojson({
             type: 'Feature',
             properties: {
-                type: 'a-f-B-I-B'
+                type: 'a-f-G-I-B'
             },
             geometry: { type: 'Point', coordinates: [0, 0] }
         });
@@ -280,7 +280,7 @@ describe('CoT Classification Tests', () => {
         cot = await CoTParser.from_geojson({
             type: 'Feature',
             properties: {
-                type: 'a-f-B-E-V'
+                type: 'a-f-G-E-V'
             },
             geometry: { type: 'Point', coordinates: [0, 0] }
         });
@@ -290,7 +290,7 @@ describe('CoT Classification Tests', () => {
         cot = await CoTParser.from_geojson({
             type: 'Feature',
             properties: {
-                type: 'a-f-B-I'
+                type: 'a-f-G-I'
             },
             geometry: { type: 'Point', coordinates: [0, 0] }
         });
@@ -302,7 +302,7 @@ describe('CoT Classification Tests', () => {
         let cot = await CoTParser.from_geojson({
             type: 'Feature',
             properties: {
-                type: 'a-f-B-E-V'
+                type: 'a-f-G-E-V'
             },
             geometry: { type: 'Point', coordinates: [0, 0] }
         });
@@ -312,7 +312,7 @@ describe('CoT Classification Tests', () => {
         cot = await CoTParser.from_geojson({
             type: 'Feature',
             properties: {
-                type: 'a-f-B-I-B'
+                type: 'a-f-G-I-B'
             },
             geometry: { type: 'Point', coordinates: [0, 0] }
         });
@@ -322,19 +322,19 @@ describe('CoT Classification Tests', () => {
         cot = await CoTParser.from_geojson({
             type: 'Feature',
             properties: {
-                type: 'a-f-B-E'
+                type: 'a-f-G-E'
             },
             geometry: { type: 'Point', coordinates: [0, 0] }
         });
 
-        expect(cot.is_vehicle()).toBe(true);
+        expect(cot.is_vehicle()).toBe(false);
     });
 
     test('CoT.is_equipment', async () => {
         let cot = await CoTParser.from_geojson({
             type: 'Feature',
             properties: {
-                type: 'a-f-B-E'
+                type: 'a-f-G-E'
             },
             geometry: { type: 'Point', coordinates: [0, 0] }
         });
@@ -344,7 +344,7 @@ describe('CoT Classification Tests', () => {
         cot = await CoTParser.from_geojson({
             type: 'Feature',
             properties: {
-                type: 'a-f-B-I'
+                type: 'a-f-G-I'
             },
             geometry: { type: 'Point', coordinates: [0, 0] }
         });
@@ -400,7 +400,7 @@ describe('CoT Classification Tests', () => {
         let cot = await CoTParser.from_geojson({
             type: 'Feature',
             properties: {
-                type: 'a-f-A-M-F-Q'
+                type: 'a-f-A-M-F-Q-r'
             },
             geometry: { type: 'Point', coordinates: [0, 0] }
         });
