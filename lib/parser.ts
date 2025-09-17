@@ -61,7 +61,9 @@ type XmlNode = Record<string, unknown>;
 
 // React Native compatible protobuf loading
 // For React Native, we need to load protobuf definitions differently
-let RootMessage: protobuf.Root;
+// let RootMessage: protobuf.Root;
+let RootMessage: protobuf.Root = new protobuf.Root();
+let rootInitPromise: Promise<void> | null = null;
 
 // Check if we're in a React Native environment
 const isReactNative = typeof navigator !== 'undefined' && navigator.product === 'ReactNative';
@@ -73,25 +75,57 @@ if (isReactNative) {
     console.warn('Protobuf definitions not loaded in React Native environment. Some functionality may be limited.');
 } else {
     // In Node.js environment, try to load the proto files
-    try {
-        // eslint-disable-next-line @typescript-eslint/no-require-imports
-        const path = require('path');
-        const protoDir = path.join(__dirname, 'proto');
-        
-        // Load all proto files in the correct order to handle imports
-        RootMessage = new protobuf.Root();
-        RootMessage.resolvePath = (origin: string, target: string) => {
-            return path.join(protoDir, target);
-        };
-        
-        // Load the main proto file which will automatically load imports
-        const protoPath = path.join(protoDir, 'takmessage.proto');
-        RootMessage = protobuf.loadSync(protoPath);
-    } catch (error) {
-        console.warn('Failed to load protobuf definitions:', error);
-        RootMessage = new protobuf.Root();
-    }
+    // try {
+    //     // eslint-disable-next-line @typescript-eslint/no-require-imports
+    //     const path = require('path');
+    //     const protoDir = path.join(__dirname, 'proto');
+    //     
+    //     // Load all proto files in the correct order to handle imports
+    //     RootMessage = new protobuf.Root();
+    //     RootMessage.resolvePath = (origin: string, target: string) => {
+    //         return path.join(protoDir, target);
+    //     };
+    //     
+    //     // Load the main proto file which will automatically load imports
+    //     const protoPath = path.join(protoDir, 'takmessage.proto');
+    //     RootMessage = protobuf.loadSync(protoPath);
+    // } catch (error) {
+    //     console.warn('Failed to load protobuf definitions:', error);
+    //     RootMessage = new protobuf.Root();
+    // }
 }
+
+const ensureRootInitialized = async (): Promise<void> => {
+    if (rootInitPromise) return rootInitPromise;
+
+    rootInitPromise = (async () => {
+        if (isReactNative) {
+            return;
+        }
+
+        try {
+            const pathModule = await import('path');
+            const { fileURLToPath } = await import('url');
+            const __filename = fileURLToPath(import.meta.url);
+            const __dirname = pathModule.dirname(__filename);
+            const protoDir = pathModule.join(__dirname, 'proto');
+
+            let localRoot = new protobuf.Root();
+            localRoot.resolvePath = (origin: string, target: string) => {
+                return pathModule.join(protoDir, target);
+            };
+
+            const protoPath = pathModule.join(protoDir, 'takmessage.proto');
+            localRoot = protobuf.loadSync(protoPath);
+            RootMessage = localRoot;
+        } catch (error) {
+            console.warn('Failed to load protobuf definitions:', error);
+            RootMessage = new protobuf.Root();
+        }
+    })();
+
+    return rootInitPromise;
+};
 
 // For React Native, package.json reading would need to be handled differently
 const pkg = { version: '14.7.9' }; // Hardcoded for now, or read from a bundled file
@@ -207,6 +241,7 @@ export class CoTParser {
      */
     static async to_proto(cot: CoT, version = 1): Promise<Uint8Array> {
         if (version < 1 || version > 1) throw new Err(400, null, `Unsupported Proto Version: ${version}`);
+        await ensureRootInitialized();
         
         let ProtoMessage;
         try {
@@ -290,6 +325,7 @@ export class CoTParser {
         version = 1,
         opts: CoTOptions = {}
     ): Promise<CoT> {
+        await ensureRootInitialized();
         let ProtoMessage;
         try {
             ProtoMessage = RootMessage.lookupType(`atakmap.commoncommo.protobuf.v${version}.TakMessage`);

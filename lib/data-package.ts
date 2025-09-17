@@ -59,7 +59,11 @@ const fileSystem = {
             throw new Error('Readable streams not yet implemented');
         }
         if (isReactNative && RNFS) {
-            await RNFS.writeFile(filePath, data.toString(), 'utf8');
+            // await RNFS.writeFile(filePath, data.toString(), 'utf8');
+            const isBuffer = Buffer.isBuffer(data);
+            const encoding = isBuffer ? 'base64' : 'utf8';
+            const payload = isBuffer ? data.toString('base64') : data;
+            await RNFS.writeFile(filePath, payload, encoding);
         } else {
             await import('fs').then(fs => fs.promises.writeFile(filePath, data));
         }
@@ -102,7 +106,9 @@ const zipUtil = {
         } else {
             // Use archiver for Node.js
             // eslint-disable-next-line @typescript-eslint/no-require-imports
-            const archiver = require('archiver');
+            // const archiver = require('archiver');
+            const archiverModule = await import('archiver');
+            const archiver = (archiverModule.default ?? archiverModule) as typeof archiverModule.default;
             const output = fs.createWriteStream(target);
             const archive = archiver('zip', { zlib: { level: 9 } });
             

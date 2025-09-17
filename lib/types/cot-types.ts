@@ -112,15 +112,36 @@ export default class CoTTypes {
         this.how = how;
     }
 
-    static async load(): Promise<CoTTypes> {
+    static async load(opts: { assetPath?: string; rawXml?: string } = {}): Promise<CoTTypes> {
         // Resolve path to cot-types.xml relative to this module
-        const path = await import('path');
-        const { fileURLToPath } = await import('url');
-        const __filename = fileURLToPath(import.meta.url);
-        const __dirname = path.dirname(__filename);
-        const xmlPath = path.join(__dirname, 'cot-types.xml');
-        
-        const xml = xmljs.xml2js(String(await fsp.readFile(xmlPath)), { compact: true })
+        // const path = await import('path');
+        // const { fileURLToPath } = await import('url');
+        // const __filename = fileURLToPath(import.meta.url);
+        // const __dirname = path.dirname(__filename);
+        // const xmlPath = path.join(__dirname, 'cot-types.xml');
+
+        let xmlContent: string;
+
+        if (isReactNative) {
+            if (opts.rawXml) {
+                xmlContent = opts.rawXml;
+            } else if (opts.assetPath) {
+                const buffer = await fsp.readFile(opts.assetPath);
+                xmlContent = buffer.toString('utf8');
+            } else {
+                throw new Error('React Native environment requires assetPath or rawXml to load CoT types');
+            }
+        } else {
+            const pathModule = await import('path');
+            const { fileURLToPath } = await import('url');
+            const __filename = fileURLToPath(import.meta.url);
+            const __dirname = pathModule.dirname(__filename);
+            const xmlPath = pathModule.join(__dirname, 'cot-types.xml');
+            const buffer = await fsp.readFile(xmlPath);
+            xmlContent = buffer.toString('utf8');
+        }
+
+        const xml = xmljs.xml2js(xmlContent, { compact: true })
 
         const types = TypeValidator.type(TypeFormat, xml);
 
