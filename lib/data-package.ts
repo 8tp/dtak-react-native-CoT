@@ -1,21 +1,129 @@
-import { createHash } from 'node:crypto';
-import { pipeline } from 'stream/promises';
-import { rimraf } from 'rimraf'
+import * as CryptoJS from 'crypto-js';
 import type { Static } from '@sinclair/typebox'
 import { Type } from '@sinclair/typebox'
 import Err from '@openaddresses/batch-error';
-import archiver from 'archiver';
 import StreamZip from 'node-stream-zip'
-import { Readable } from 'node:stream';
+import { Readable } from 'readable-stream';
 import { v4 as randomUUID } from 'uuid';
 import CoT from './cot.js';
 import { CoTParser } from './parser.js';
 import xmljs from 'xml-js';
-import os from 'node:os';
-import fs from 'node:fs';
-import fsp from 'node:fs/promises';
-import path from 'node:path';
+import path from 'path';
 import AJV from 'ajv';
+import fs from 'fs';
+import fsp from 'fs/promises';
+import os from 'os';
+
+// Check if we're in a React Native environment
+const isReactNative = typeof navigator !== 'undefined' && navigator.product === 'ReactNative';
+
+// Conditional imports for React Native vs Node.js environment
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+let RNFS: any = null;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+let rnZip: any = null;
+
+if (isReactNative) {
+    try {
+        // eslint-disable-next-line @typescript-eslint/no-require-imports
+        RNFS = require('react-native-fs');
+        // eslint-disable-next-line @typescript-eslint/no-require-imports
+        rnZip = require('react-native-zip-archive');
+    } catch (error) {
+        console.warn('React Native modules not available:', error);
+    }
+}
+
+// Unified file system interface
+const fileSystem = {
+    mkdir: async (dirPath: string, options?: { recursive?: boolean }) => {
+        if (isReactNative && RNFS) {
+            await RNFS.mkdir(dirPath);
+        } else {
+            await import('fs').then(fs => fs.promises.mkdir(dirPath, options));
+        }
+    },
+    readFile: async (filePath: string, encoding?: string): Promise<Buffer> => {
+        if (isReactNative && RNFS) {
+            const content = await RNFS.readFile(filePath, encoding || 'utf8');
+            if (encoding === 'base64') {
+                return Buffer.from(content, 'base64');
+            }
+            return Buffer.from(content, 'utf8');
+        } else {
+            return await import('fs').then(fs => fs.promises.readFile(filePath));
+        }
+    },
+    writeFile: async (filePath: string, data: string | Buffer | Readable) => {
+        if (data instanceof Readable) {
+            throw new Error('Readable streams not yet implemented');
+        }
+        if (isReactNative && RNFS) {
+            // await RNFS.writeFile(filePath, data.toString(), 'utf8');
+            const isBuffer = Buffer.isBuffer(data);
+            const encoding = isBuffer ? 'base64' : 'utf8';
+            const payload = isBuffer ? data.toString('base64') : data;
+            await RNFS.writeFile(filePath, payload, encoding);
+        } else {
+            await import('fs').then(fs => fs.promises.writeFile(filePath, data));
+        }
+    },
+    access: async (filePath: string) => {
+        if (isReactNative && RNFS) {
+            const exists = await RNFS.exists(filePath);
+            if (!exists) throw new Error('File does not exist');
+        } else {
+            await import('fs').then(fs => fs.promises.access(filePath));
+        }
+    },
+    unlink: async (filePath: string) => {
+        if (isReactNative && RNFS) {
+            await RNFS.unlink(filePath);
+        } else {
+            await import('fs').then(fs => fs.promises.unlink(filePath));
+        }
+    },
+    createReadStream: (filePath: string) => {
+        if (isReactNative) {
+            throw new Error('createReadStream not implemented for React Native');
+        }
+        return fs.createReadStream(filePath);
+    },
+    tmpdir: () => {
+        if (isReactNative && RNFS) {
+            return RNFS.TemporaryDirectoryPath;
+        }
+        return os.tmpdir();
+    }
+};
+
+// Unified zip interface
+const zipUtil = {
+    create: async (source: string, target: string) => {
+        if (isReactNative && rnZip) {
+            await rnZip.zip(source, target);
+            return target;
+        } else {
+            // Use archiver for Node.js
+            // eslint-disable-next-line @typescript-eslint/no-require-imports
+            // const archiver = require('archiver');
+            const archiverModule = await import('archiver');
+            const archiver = (archiverModule.default ?? archiverModule) as typeof archiverModule.default;
+            const output = fs.createWriteStream(target);
+            const archive = archiver('zip', { zlib: { level: 9 } });
+            
+            return new Promise<string>((resolve, reject) => {
+                output.on('close', () => resolve(target));
+                archive.on('error', reject);
+                archive.pipe(output);
+                archive.directory(source, false);
+                archive.finalize();
+            });
+        }
+    }
+};
+
+
 
 export const Parameter = Type.Object({
     _attributes: Type.Object({
@@ -120,13 +228,20 @@ export class DataPackage {
         if (opts && opts.path) {
             this.path = opts.path;
         } else {
-            this.path = os.tmpdir() + '/' + randomUUID();
+            this.path = fileSystem.tmpdir() + '/' + randomUUID();
         }
 
         this.destroyed = false;
-        fs.mkdirSync(this.path, {
-            recursive: true
-        });
+        // Create directory synchronously for constructor
+        if (isReactNative && RNFS) {
+            RNFS.mkdir(this.path).catch(() => {});
+        } else {
+            try {
+                fs.mkdirSync(this.path, { recursive: true });
+            } catch {
+                // Directory might already exist
+            }
+        }
         this.version = '2';
         this.unknown = {};
         this.settings = {
@@ -193,11 +308,29 @@ export class DataPackage {
      * When DataPackages are uploaded to TAK Server they generally use an EUD
      * calculated Hash
      */
-    static async hash(path: string): Promise<string> {
-        const input = fs.createReadStream(path);
-        const hash = createHash('sha256');
-        await pipeline(input, hash);
-        return hash.digest('hex');
+    static async hash(filePath: string): Promise<string> {
+        try {
+            // Read the file as binary buffer for consistent hashing
+            let content: Buffer;
+            if (isReactNative && RNFS) {
+                // In React Native, read as base64 then convert to buffer
+                const base64Content = await RNFS.readFile(filePath, 'base64');
+                content = Buffer.from(base64Content, 'base64');
+            } else {
+                // In Node.js, read directly as buffer
+                const fs = await import('fs');
+                content = await fs.promises.readFile(filePath);
+            }
+            
+            if (!content || content.length === 0) {
+                throw new Error('File content is empty or undefined');
+            }
+            
+            // Hash the raw buffer content for consistency
+            return CryptoJS.SHA256(CryptoJS.lib.WordArray.create(content)).toString(CryptoJS.enc.Hex);
+        } catch (error) {
+            throw new Error(`Failed to hash file ${filePath}: ${error}`);
+        }
     }
 
     /**
@@ -228,7 +361,8 @@ export class DataPackage {
         input = input instanceof URL ? path.normalize(decodeURIComponent(input.pathname)) : input;
         if (!opts) opts = {};
         if (opts.strict === undefined) opts.strict = true;
-        if (opts.cleanup === undefined) opts.cleanup = true;
+        // Default to keeping the input file unless explicitly asked to cleanup
+        if (opts.cleanup === undefined) opts.cleanup = false;
 
         const pkg = new DataPackage();
 
@@ -243,11 +377,11 @@ export class DataPackage {
             throw new Err(400, null, 'No MANIFEST/manifest.xml found in Data Package');
         }
 
-        await fsp.mkdir(pkg.path + '/raw', { recursive: true });
+        await fileSystem.mkdir(pkg.path + '/raw', { recursive: true });
         await zip.extract(null, pkg.path + '/raw/');
 
         if (preentries['MANIFEST/manifest.xml']) {
-            const xml = xmljs.xml2js(String(await fsp.readFile(pkg.path + '/raw/MANIFEST/manifest.xml')), { compact: true })
+            const xml = xmljs.xml2js(String(await fileSystem.readFile(pkg.path + '/raw/MANIFEST/manifest.xml')), { compact: true })
 
             checkManifest(xml);
             if (checkManifest.errors) throw new Err(400, null, `${checkManifest.errors[0].message} (${checkManifest.errors[0].instancePath})`);
@@ -258,7 +392,7 @@ export class DataPackage {
             if (Array.isArray(manifest.MissionPackageManifest.Contents.Content)) {
                 pkg.contents = manifest.MissionPackageManifest.Contents.Content;
             } else if (manifest.MissionPackageManifest.Contents.Content) {
-                pkg.contents = [ manifest.MissionPackageManifest.Contents.Content ];
+                pkg.contents = [manifest.MissionPackageManifest.Contents.Content];
             }
 
             for (const param of manifest.MissionPackageManifest.Configuration.Parameter) {
@@ -290,7 +424,7 @@ export class DataPackage {
 
         await zip.close();
         if (opts.cleanup) {
-            await fsp.unlink(input);
+            await fileSystem.unlink(input);
         }
 
         return pkg;
@@ -307,7 +441,7 @@ export class DataPackage {
             _attributes: { ignore: ignore, zipEntry },
             Parameter: [{
                 _attributes: { name: 'uid', value: uid },
-            },{
+            }, {
                 _attributes: { name: 'name', value: name ?? path.parse(zipEntry).base }
             }]
         });
@@ -513,8 +647,8 @@ export class DataPackage {
     async addCoT(cot: CoT, opts: {
         ignore: boolean
     } = {
-        ignore: false
-    }): Promise<void> {
+            ignore: false
+        }): Promise<void> {
         if (this.destroyed) throw new Err(400, null, 'Attempt to access Data Package after it has been destroyed');
 
         const name = cot.callsign();
@@ -528,7 +662,20 @@ export class DataPackage {
      * Destory the underlying FS resources and prevent further mutation
      */
     async destroy(): Promise<void> {
-        await rimraf(this.path);
+        if (isReactNative && RNFS) {
+            try {
+                await RNFS.unlink(this.path);
+            } catch {
+                // ignore if already deleted
+            }
+        } else {
+            const fs = await import('fs');
+            try {
+                await fs.promises.rm(this.path, { recursive: true, force: true });
+            } catch {
+                // ignore if already deleted
+            }
+        }
         this.destroyed = true;
     }
 
@@ -540,18 +687,17 @@ export class DataPackage {
     async finalize(): Promise<string> {
         if (this.destroyed) throw new Err(400, null, 'Attempt to access Data Package after it has been destroyed');
 
-        await fsp.mkdir(this.path + '/raw/MANIFEST', { recursive: true });
-        await fsp.writeFile(this.path + '/raw/MANIFEST/manifest.xml', this.manifest());
+        await fileSystem.mkdir(this.path + '/raw/MANIFEST', { recursive: true });
+        await fileSystem.writeFile(this.path + '/raw/MANIFEST/manifest.xml', this.manifest());
 
-        return new Promise((resolve) => {
-            const archive = archiver('zip', { zlib: { level: 9 } });
-            const output = fs.createWriteStream(this.path + `/${this.settings.uid}.zip`)
-            archive.pipe(output);
-            output.on('close', () => {
-                return resolve(this.path + `/${this.settings.uid}.zip`);
-            });
-            archive.directory(this.path + '/raw/', '/');
-            archive.finalize()
-        });
+        // Create zip archive
+        const zipPath = this.path + `/${this.settings.uid}.zip`;
+        
+        try {
+            await zipUtil.create(this.path + '/raw', zipPath);
+            return zipPath;
+        } catch (error) {
+            throw new Error(`Failed to create archive: ${error}`);
+        }
     }
 }

@@ -1,9 +1,40 @@
-import fsp from 'node:fs/promises';
 import xmljs from 'xml-js';
 import type { Static } from '@sinclair/typebox';
 import TypeValidator from '../utils/type.js';
 import MilSymType, { StandardIdentity, Domain } from '../utils/2525.js';
 import { Type } from '@sinclair/typebox'
+
+// Detect React Native environment
+const isReactNative = typeof navigator !== 'undefined' && navigator.product === 'ReactNative';
+
+// Minimal RNFS-like interface for reading files
+type RNFSLike = {
+    readFile: (filePath: string, encoding: string) => Promise<string>
+};
+
+let RNFS: RNFSLike | undefined;
+if (isReactNative) {
+    try {
+        // eslint-disable-next-line @typescript-eslint/no-require-imports
+        RNFS = require('react-native-fs');
+    } catch {
+        // React Native FS not available
+    }
+}
+
+// Cross-platform file system wrapper
+const fsp = {
+    readFile: async (filePath: string): Promise<Buffer> => {
+        if (isReactNative && RNFS) {
+            const content = await RNFS.readFile(filePath, 'utf8');
+            return Buffer.from(content, 'utf8');
+        } else {
+            // Use Node.js fs for test environment
+            const fs = await import('fs');
+            return await fs.promises.readFile(filePath);
+        }
+    }
+};
 
 export const AugmentedType = Type.Object({
     cot: Type.String(),
@@ -81,8 +112,36 @@ export default class CoTTypes {
         this.how = how;
     }
 
-    static async load(): Promise<CoTTypes> {
-        const xml = xmljs.xml2js(String(await fsp.readFile(new URL('cot-types.xml', import.meta.url))), { compact: true })
+    static async load(opts: { assetPath?: string; rawXml?: string } = {}): Promise<CoTTypes> {
+        // Resolve path to cot-types.xml relative to this module
+        // const path = await import('path');
+        // const { fileURLToPath } = await import('url');
+        // const __filename = fileURLToPath(import.meta.url);
+        // const __dirname = path.dirname(__filename);
+        // const xmlPath = path.join(__dirname, 'cot-types.xml');
+
+        let xmlContent: string;
+
+        if (isReactNative) {
+            if (opts.rawXml) {
+                xmlContent = opts.rawXml;
+            } else if (opts.assetPath) {
+                const buffer = await fsp.readFile(opts.assetPath);
+                xmlContent = buffer.toString('utf8');
+            } else {
+                throw new Error('React Native environment requires assetPath or rawXml to load CoT types');
+            }
+        } else {
+            const pathModule = await import('path');
+            const { fileURLToPath } = await import('url');
+            const __filename = fileURLToPath(import.meta.url);
+            const __dirname = pathModule.dirname(__filename);
+            const xmlPath = pathModule.join(__dirname, 'cot-types.xml');
+            const buffer = await fsp.readFile(xmlPath);
+            xmlContent = buffer.toString('utf8');
+        }
+
+        const xml = xmljs.xml2js(xmlContent, { compact: true })
 
         const types = TypeValidator.type(TypeFormat, xml);
 

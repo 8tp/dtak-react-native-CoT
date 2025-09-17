@@ -1,6 +1,6 @@
-<h1 align=center>Node-CoT</h1>
+<h1 align=center>dTAK React Native CoT</h1>
 
-<p align=center>Typescript/Javascript Cursor-On-Target Library</p>
+<p align=center>React Native Cursor-On-Target Library for Tactical Awareness</p>
 
 <p align='center'>
     <a href="https://codecov.io/gh/dfpc-coe/node-CoT" >
@@ -8,70 +8,68 @@
     </a>
 </p>
 
-Lightweight Typescript library for parsing and manipulating TAK related messages, primarily [Cursor-on-Target (COT)](https://git.tak.gov/standards/takcot)
+TypeScript library for parsing and manipulating TAK messages, primarily [Cursor-on-Target (CoT)](https://git.tak.gov/standards/takcot), with first-class React Native support.
 
-## About
+## What this provides
 
-`node-cot` converts between TAK message protocols (XML & Protobuf) and a Javascript object/JSON format.
-It also can bidirectionally convert CoT messages into [GeoJSON](https://geojson.org/)
+- CoT XML ↔ JS object conversion
+- CoT Protobuf serialization/deserialization
+- GeoJSON ↔ CoT conversion
+- TAK Data Packages (MissionPackageManifest) parse/build
+- React Native-native FS/archive support (RNFS + RN zip-archive)
 
-It also support creating and parsing the following TAK Data Types
+## Install (React Native)
 
-- Data Packages (CoTs, Attachments, etc)
-- Basemap XML Documents
+```bash
+npm install @tak-ps/react-native-cot
+# Native peer deps used by the library on device
+npm install react-native-fs react-native-zip-archive readable-stream react-native-path
+# iOS
+cd ios && pod install
+```
+
+Metro config notes and asset handling are documented in the RN guide below.
+
+## Quick Start
+
+```ts
+import { CoTParser } from '@tak-ps/react-native-cot';
+
+async function demo() {
+  const feature = {
+    type: 'Feature',
+    id: 'sample-1',
+    properties: {
+      type: 'a-f-G-E',
+      how: 'm-g',
+      time: new Date().toISOString(),
+      start: new Date().toISOString(),
+      stale: new Date(Date.now() + 60_000).toISOString(),
+      callsign: 'Alpha',
+    },
+    geometry: { type: 'Point', coordinates: [-104.99, 39.74, 0] },
+  } as const;
+
+  const cot = await CoTParser.from_geojson(feature);
+  const xml = CoTParser.to_xml(cot);
+  const proto = await CoTParser.to_proto(cot);
+  const cot2 = await CoTParser.from_proto(proto);
+}
+```
+
+## Documentation
+
+- React Native Integration: `docs/react-native-integration.md`
+- Offline-First Patterns: `docs/offline-first.md`
+- TAK Interoperability: `docs/tak-interoperability.md`
 
 ## API Documentation
 
-API Documentation for the latest version can be found on our [Github Pages Site](https://dfpc-coe.github.io/node-CoT/)
-
-Or generated locally with
+Generate locally with:
 
 ```sh
 npm run doc
-
 ```
-
-## Installation
-
-### NPM
-
-To install `node-cot` with npm run
-
-```bash
-npm install @tak-ps/node-cot
-```
-
-## Usage Examples
-
-### Cursor-On-Target
-
-```js
-import CoT from '@tak-ps/node-cot';
-
-const cot = new CoT(`
-    <event version="2.0" uid="ANDROID-deadbeef" type="a-f-G-U-C" how="m-g" time="2021-02-27T20:32:24.771Z" start="2021-02-27T20:32:24.771Z" stale="2021-02-27T20:38:39.771Z">
-        <point lat="1.234567" lon="-3.141592" hae="-25.7" ce="9.9" le="9999999.0"/>
-    </event>
-`);
-
-
-// Export Formats
-cot.to_geojson();   // Output GeoJSON Representation
-cot.to_xml();       // Output String XML Representation
-
-cot.raw; // JSON XML Representation
-```
-
-### Debugging
-
-If the Environment Variable `DEBUG_COTS` is truthy
-ie:
-
-```
-export DEBUG_COTS=1
-```
-
-Then the raw JSONified XML will be printed on each constructor invocation.
 
 ## CoT Spec
 
