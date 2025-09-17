@@ -15,7 +15,13 @@ export default defineConfig({
   },
   resolve: {
     alias: {
-      'react-native-fs': new URL('./test/__mocks__/react-native-fs.ts', import.meta.url).pathname
+      'react-native-fs': new URL('./test/__mocks__/react-native-fs.ts', import.meta.url).pathname,
+      'react-native': new URL('./test/__mocks__/react-native.ts', import.meta.url).pathname,
+      'react-native-vision-camera': new URL('./test/__mocks__/react-native-vision-camera.ts', import.meta.url).pathname,
+      'react-native-canvas': new URL('./test/__mocks__/react-native-canvas.ts', import.meta.url).pathname,
+      'react-native-geolocation-service': new URL('./test/__mocks__/react-native-geolocation-service.ts', import.meta.url).pathname,
+      '@react-native-async-storage/async-storage': new URL('./test/__mocks__/@react-native-async-storage/async-storage.ts', import.meta.url).pathname,
+      'react-native-image-resizer': new URL('./test/__mocks__/react-native-image-resizer.ts', import.meta.url).pathname
     }
   }
 })

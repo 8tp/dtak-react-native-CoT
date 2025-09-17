@@ -133,12 +133,15 @@ describe('DataPackage Tests', () => {
         await pkg_parse.destroy();
     });
 
-    test(`DataPackage CoT Parsing: QuickPic.zip`, async () => {
-        const pkg = await DataPackage.parse(new URL('./packages/QuickPic.zip', import.meta.url).pathname);
+    const quickPicPath = new URL('./packages/QuickPic.zip', import.meta.url).pathname;
+    const hasQuickPic = fs.existsSync(quickPicPath);
+    const maybeQuickPic = hasQuickPic ? test : test.skip;
+    maybeQuickPic(`DataPackage CoT Parsing: QuickPic.zip`, async () => {
+        const pkg = await DataPackage.parse(quickPicPath);
 
         console.log(`import.meta.url = ${import.meta.url}`);
 
-        expect(await DataPackage.hash(new URL('./packages/QuickPic.zip', import.meta.url).pathname)).toBe('bd13db0f18ccb423833cc21c0678e0224dd15ff504c1f16c43aff03e216b82a7');
+        expect(await DataPackage.hash(quickPicPath)).toBe('bd13db0f18ccb423833cc21c0678e0224dd15ff504c1f16c43aff03e216b82a7');
 
         expect(pkg.path).toBeDefined();
         expect(pkg.settings).toEqual({

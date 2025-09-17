@@ -1,0 +1,17 @@
+{
+  "expo": {
+    "name": "dtak-map-example",
+    "slug": "dtak-map-example",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "jsEngine": "hermes",
+    "platforms": [
+      "ios",
+      "android",
+      "web"
+    ],
+    "assetBundlePatterns": [
+      "**/*"
+    ]
+  }
+}

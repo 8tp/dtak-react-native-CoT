@@ -3,7 +3,6 @@ export const DocumentDirectoryPath = '/mock/documents';
 export const ExternalDirectoryPath = '/mock/external';
 export const ExternalStorageDirectoryPath = '/mock/external-storage';
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export const readFile = async (filePath: string, format: string | undefined) => {
   // Mock XML content for cot-types.xml
   console.log(`Mock readFile called with path: ${filePath} and format: ${format}`);
