@@ -1,5 +1,47 @@
 docs/
 
+# React Native specific
+# Metro bundler cache
+.metro-health-check*
+.expo/
+.expo-shared/
+
+# React Native builds
+android/app/build/
+ios/build/
+ios/Pods/
+ios/*.xcworkspace
+ios/*.xcuserdata
+
+# React Native temporary files
+*.jsbundle
+*.bundle
+*.map
+
+# Flipper
+.flipper/
+
+# Temporary directories that may be created during development
+undefined/
+temp/
+tmp/
+
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
 # Logs
 logs
 *.log
@@ -104,3 +146,27 @@ dist
 
 # TernJS port file
 .tern-port
+
+# Test artifacts
+test-results/
+*.test.js.snap
+
+# Build outputs
+build/
+dist/
+lib-esm/
+
+# Package manager lock files (keep package-lock.json but ignore others)
+yarn.lock
+pnpm-lock.yaml
+
+# Environment and config files
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Temporary React Native files
+*.hprof
+*.keystore
+!debug.keystore
