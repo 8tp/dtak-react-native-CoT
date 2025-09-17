@@ -196,7 +196,7 @@ describe('DataPackage Tests', () => {
 
         const buff = await stream2buffer(await pkg.getFile('123/package.json'));
 
-        expect(JSON.parse(buff.toString()).name).toBe('@tak-ps/node-cot');
+        expect(JSON.parse(buff.toString()).name).toBe('@tak-ps/react-native-cot');
 
         const cots = await pkg.cots();
 

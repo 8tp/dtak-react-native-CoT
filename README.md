@@ -1,6 +1,6 @@
-<h1 align=center>Node-CoT</h1>
+<h1 align=center>dTAK React Native CoT</h1>
 
-<p align=center>Typescript/Javascript Cursor-On-Target Library</p>
+<p align=center>React Native Cursor-On-Target Library for Tactical Awareness</p>
 
 <p align='center'>
     <a href="https://codecov.io/gh/dfpc-coe/node-CoT" >

@@ -1,8 +1,8 @@
 {
-    "name": "@tak-ps/node-cot",
+    "name": "@tak-ps/react-native-cot",
     "type": "module",
     "version": "14.7.9",
-    "description": "Lightweight JavaScript library for parsing and manipulating TAK messages",
+    "description": "React Native library for parsing and manipulating TAK messages with offline-first tactical mapping capabilities",
     "author": "Nick Ingalls <nick@ingalls.ca>",
     "types": "index.ts",
     "exports": {
@@ -27,8 +27,9 @@
         "pretest": "npm run lint"
     },
     "engines": {
-        "node": ">= 22"
+        "node": ">= 18"
     },
+    "react-native": "index.ts",
     "dependencies": {
         "@openaddresses/batch-error": "^2.4.0",
         "@orbat-mapper/convert-symbology": "^1.0.2",
@@ -85,9 +86,13 @@
         "atak",
         "wintak",
         "cot",
-        "cusor",
+        "cursor",
         "target",
-        "tactical"
+        "tactical",
+        "react-native",
+        "offline-first",
+        "mesh-networking",
+        "dtak"
     ],
     "license": "MIT",
     "bugs": {
