@@ -4,6 +4,7 @@ import type { Static } from '@sinclair/typebox';
 import TypeValidator from '../utils/type.js';
 import MilSymType, { StandardIdentity, Domain } from '../utils/2525.js';
 import { Type } from '@sinclair/typebox'
+import path from 'path-browserify';
 
 // React Native compatible fs wrapper
 const fsp = {
@@ -90,9 +91,8 @@ export default class CoTTypes {
     }
 
     static async load(): Promise<CoTTypes> {
-        // In React Native, you'll need to bundle the XML file or use a different approach
-        // For now, using a placeholder path - this would need to be adjusted based on your React Native setup
-        const xmlPath = './cot-types.xml'; // This would need to be bundled or accessible in React Native
+        // Resolve the XML file relative to the lib/types directory
+        const xmlPath = path.resolve(path.dirname(''), 'lib', 'types', 'cot-types.xml');
         const xml = xmljs.xml2js(String(await fsp.readFile(xmlPath)), { compact: true })
 
         const types = TypeValidator.type(TypeFormat, xml);

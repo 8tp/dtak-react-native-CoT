@@ -1,7 +1,7 @@
 module.exports = {
   preset: 'ts-jest',
   testEnvironment: 'node',
-  testMatch: ['**/test/util.test.ts'],
+  testMatch: ['**/test/**/*.test.ts'],
   moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json'],
   transform: {
     '^.+\\.(ts|tsx)$': ['ts-jest', {
@@ -13,8 +13,12 @@ module.exports = {
         "skipLibCheck": true,
         "verbatimModuleSyntax": false
       }
-    }]
+    }],
+    '^.+\\.js$': 'babel-jest'
   },
+  transformIgnorePatterns: [
+    '/node_modules/(?!(color|color-string|color-name|color-convert|simple-swizzle)/)'
+  ],
   moduleNameMapper: {
     '^(\\.{1,2}/.*)\\.js$': '$1',
     '^react-native-fs$': '<rootDir>/test/__mocks__/react-native-fs.ts',

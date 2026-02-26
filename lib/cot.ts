@@ -93,7 +93,7 @@ export default class CoT {
             }
         }
 
-        if (process.env.DEBUG_COTS) console.log(JSON.stringify(this.raw))
+        if (typeof process !== 'undefined' && process.env && process.env.DEBUG_COTS) console.log(JSON.stringify(this.raw))
     }
 
     /**

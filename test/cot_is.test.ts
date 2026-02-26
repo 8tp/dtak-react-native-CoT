@@ -1,7 +1,6 @@
-import test from 'tape';
 import { CoTParser } from '../index.js';
 
-test('CoT.is_friend', async (t) => {
+test('CoT.is_friend', async () => {
     let cot = await CoTParser.from_geojson({
         type: 'Feature',
         properties: {
@@ -10,7 +9,7 @@ test('CoT.is_friend', async (t) => {
         geometry: { type: 'Point', coordinates: [0,0] }
     });
 
-    t.ok(cot.is_friend());
+    expect(cot.is_friend()).toBeTruthy();
 
     cot = await CoTParser.from_geojson({
         type: 'Feature',
@@ -20,12 +19,10 @@ test('CoT.is_friend', async (t) => {
         geometry: { type: 'Point', coordinates: [0,0] }
     });
 
-    t.notOk(cot.is_friend());
-
-    t.end();
+    expect(cot.is_friend()).toBeFalsy();
 });
 
-test('CoT.is_hostile', async (t) => {
+test('CoT.is_hostile', async () => {
     let cot = await CoTParser.from_geojson({
         type: 'Feature',
         properties: {
@@ -34,7 +31,7 @@ test('CoT.is_hostile', async (t) => {
         geometry: { type: 'Point', coordinates: [0,0] }
     });
 
-    t.ok(cot.is_hostile());
+    expect(cot.is_hostile()).toBeTruthy();
 
     cot = await CoTParser.from_geojson({
         type: 'Feature',
@@ -44,12 +41,10 @@ test('CoT.is_hostile', async (t) => {
         geometry: { type: 'Point', coordinates: [0,0] }
     });
 
-    t.notOk(cot.is_hostile());
-
-    t.end();
+    expect(cot.is_hostile()).toBeFalsy();
 });
 
-test('CoT.is_unknown', async (t) => {
+test('CoT.is_unknown', async () => {
     let cot = await CoTParser.from_geojson({
         type: 'Feature',
         properties: {
@@ -58,7 +53,7 @@ test('CoT.is_unknown', async (t) => {
         geometry: { type: 'Point', coordinates: [0,0] }
     });
 
-    t.ok(cot.is_unknown());
+    expect(cot.is_unknown()).toBeTruthy();
 
     cot = await CoTParser.from_geojson({
         type: 'Feature',
@@ -68,12 +63,10 @@ test('CoT.is_unknown', async (t) => {
         geometry: { type: 'Point', coordinates: [0,0] }
     });
 
-    t.notOk(cot.is_unknown());
-
-    t.end();
+    expect(cot.is_unknown()).toBeFalsy();
 });
 
-test('CoT.is_pending', async (t) => {
+test('CoT.is_pending', async () => {
     let cot = await CoTParser.from_geojson({
         type: 'Feature',
         properties: {
@@ -82,7 +75,7 @@ test('CoT.is_pending', async (t) => {
         geometry: { type: 'Point', coordinates: [0,0] }
     });
 
-    t.ok(cot.is_pending());
+    expect(cot.is_pending()).toBeTruthy();
 
     cot = await CoTParser.from_geojson({
         type: 'Feature',
@@ -92,12 +85,10 @@ test('CoT.is_pending', async (t) => {
         geometry: { type: 'Point', coordinates: [0,0] }
     });
 
-    t.notOk(cot.is_pending());
-
-    t.end();
+    expect(cot.is_pending()).toBeFalsy();
 });
 
-test('CoT.is_assumed', async (t) => {
+test('CoT.is_assumed', async () => {
     let cot = await CoTParser.from_geojson({
         type: 'Feature',
         properties: {
@@ -106,7 +97,7 @@ test('CoT.is_assumed', async (t) => {
         geometry: { type: 'Point', coordinates: [0,0] }
     });
 
-    t.ok(cot.is_assumed());
+    expect(cot.is_assumed()).toBeTruthy();
 
     cot = await CoTParser.from_geojson({
         type: 'Feature',
@@ -116,11 +107,10 @@ test('CoT.is_assumed', async (t) => {
         geometry: { type: 'Point', coordinates: [0,0] }
     });
 
-    t.notOk(cot.is_assumed());
-    t.end();
+    expect(cot.is_assumed()).toBeFalsy();
 });
 
-test('CoT.is_neutral', async (t) => {
+test('CoT.is_neutral', async () => {
     let cot = await CoTParser.from_geojson({
         type: 'Feature',
         properties: {
@@ -129,7 +119,7 @@ test('CoT.is_neutral', async (t) => {
         geometry: { type: 'Point', coordinates: [0,0] }
     });
 
-    t.ok(cot.is_neutral());
+    expect(cot.is_neutral()).toBeTruthy();
 
     cot = await CoTParser.from_geojson({
         type: 'Feature',
@@ -139,11 +129,10 @@ test('CoT.is_neutral', async (t) => {
         geometry: { type: 'Point', coordinates: [0,0] }
     });
 
-    t.notOk(cot.is_neutral());
-    t.end();
+    expect(cot.is_neutral()).toBeFalsy();
 });
 
-test('CoT.is_suspect', async (t) => {
+test('CoT.is_suspect', async () => {
     let cot = await CoTParser.from_geojson({
         type: 'Feature',
         properties: {
@@ -152,7 +141,7 @@ test('CoT.is_suspect', async (t) => {
         geometry: { type: 'Point', coordinates: [0,0] }
     });
 
-    t.ok(cot.is_suspect());
+    expect(cot.is_suspect()).toBeTruthy();
 
     cot = await CoTParser.from_geojson({
         type: 'Feature',
@@ -162,11 +151,10 @@ test('CoT.is_suspect', async (t) => {
         geometry: { type: 'Point', coordinates: [0,0] }
     });
 
-    t.notOk(cot.is_suspect());
-    t.end();
+    expect(cot.is_suspect()).toBeFalsy();
 });
 
-test('CoT.is_joker', async (t) => {
+test('CoT.is_joker', async () => {
     let cot = await CoTParser.from_geojson({
         type: 'Feature',
         properties: {
@@ -175,7 +163,7 @@ test('CoT.is_joker', async (t) => {
         geometry: { type: 'Point', coordinates: [0,0] }
     });
 
-    t.ok(cot.is_joker());
+    expect(cot.is_joker()).toBeTruthy();
 
     cot = await CoTParser.from_geojson({
         type: 'Feature',
@@ -185,11 +173,10 @@ test('CoT.is_joker', async (t) => {
         geometry: { type: 'Point', coordinates: [0,0] }
     });
 
-    t.notOk(cot.is_joker());
-    t.end();
+    expect(cot.is_joker()).toBeFalsy();
 });
 
-test('CoT.is_faker', async (t) => {
+test('CoT.is_faker', async () => {
     let cot = await CoTParser.from_geojson({
         type: 'Feature',
         properties: {
@@ -198,7 +185,7 @@ test('CoT.is_faker', async (t) => {
         geometry: { type: 'Point', coordinates: [0,0] }
     });
 
-    t.ok(cot.is_faker());
+    expect(cot.is_faker()).toBeTruthy();
 
     cot = await CoTParser.from_geojson({
         type: 'Feature',
@@ -208,11 +195,10 @@ test('CoT.is_faker', async (t) => {
         geometry: { type: 'Point', coordinates: [0,0] }
     });
 
-    t.notOk(cot.is_faker());
-    t.end();
+    expect(cot.is_faker()).toBeFalsy();
 });
 
-test('CoT.is_atom', async (t) => {
+test('CoT.is_atom', async () => {
     let cot = await CoTParser.from_geojson({
         type: 'Feature',
         properties: {
@@ -221,7 +207,7 @@ test('CoT.is_atom', async (t) => {
         geometry: { type: 'Point', coordinates: [0,0] }
     });
 
-    t.ok(cot.is_atom());
+    expect(cot.is_atom()).toBeTruthy();
 
     cot = await CoTParser.from_geojson({
         type: 'Feature',
@@ -231,11 +217,10 @@ test('CoT.is_atom', async (t) => {
         geometry: { type: 'Point', coordinates: [0,0] }
     });
 
-    t.notOk(cot.is_atom());
-    t.end();
+    expect(cot.is_atom()).toBeFalsy();
 });
 
-test('CoT.is_airborne', async (t) => {
+test('CoT.is_airborne', async () => {
     let cot = await CoTParser.from_geojson({
         type: 'Feature',
         properties: {
@@ -244,7 +229,7 @@ test('CoT.is_airborne', async (t) => {
         geometry: { type: 'Point', coordinates: [0,0] }
     });
 
-    t.ok(cot.is_airborne());
+    expect(cot.is_airborne()).toBeTruthy();
 
     cot = await CoTParser.from_geojson({
         type: 'Feature',
@@ -254,11 +239,10 @@ test('CoT.is_airborne', async (t) => {
         geometry: { type: 'Point', coordinates: [0,0] }
     });
 
-    t.notOk(cot.is_airborne());
-    t.end();
+    expect(cot.is_airborne()).toBeFalsy();
 });
 
-test('CoT.is_ground', async (t) => {
+test('CoT.is_ground', async () => {
     let cot = await CoTParser.from_geojson({
         type: 'Feature',
         properties: {
@@ -267,7 +251,7 @@ test('CoT.is_ground', async (t) => {
         geometry: { type: 'Point', coordinates: [0,0] }
     });
 
-    t.ok(cot.is_ground());
+    expect(cot.is_ground()).toBeTruthy();
 
     cot = await CoTParser.from_geojson({
         type: 'Feature',
@@ -277,11 +261,10 @@ test('CoT.is_ground', async (t) => {
         geometry: { type: 'Point', coordinates: [0,0] }
     });
 
-    t.notOk(cot.is_ground());
-    t.end();
+    expect(cot.is_ground()).toBeFalsy();
 });
 
-test('CoT.is_installation', async (t) => {
+test('CoT.is_installation', async () => {
     let cot = await CoTParser.from_geojson({
         type: 'Feature',
         properties: {
@@ -290,7 +273,7 @@ test('CoT.is_installation', async (t) => {
         geometry: { type: 'Point', coordinates: [0,0] }
     });
 
-    t.ok(cot.is_installation());
+    expect(cot.is_installation()).toBeTruthy();
 
     cot = await CoTParser.from_geojson({
         type: 'Feature',
@@ -300,7 +283,7 @@ test('CoT.is_installation', async (t) => {
         geometry: { type: 'Point', coordinates: [0,0] }
     });
 
-    t.notOk(cot.is_installation());
+    expect(cot.is_installation()).toBeFalsy();
 
     cot = await CoTParser.from_geojson({
         type: 'Feature',
@@ -310,11 +293,10 @@ test('CoT.is_installation', async (t) => {
         geometry: { type: 'Point', coordinates: [0,0] }
     });
 
-    t.notOk(cot.is_installation());
-    t.end();
+    expect(cot.is_installation()).toBeFalsy();
 });
 
-test('CoT.is_vehicle', async (t) => {
+test('CoT.is_vehicle', async () => {
     let cot = await CoTParser.from_geojson({
         type: 'Feature',
         properties: {
@@ -323,7 +305,7 @@ test('CoT.is_vehicle', async (t) => {
         geometry: { type: 'Point', coordinates: [0,0] }
     });
 
-    t.ok(cot.is_vehicle());
+    expect(cot.is_vehicle()).toBeTruthy();
 
     cot = await CoTParser.from_geojson({
         type: 'Feature',
@@ -333,7 +315,7 @@ test('CoT.is_vehicle', async (t) => {
         geometry: { type: 'Point', coordinates: [0,0] }
     });
 
-    t.ok(cot.is_vehicle());
+    expect(cot.is_vehicle()).toBeTruthy();
 
     cot = await CoTParser.from_geojson({
         type: 'Feature',
@@ -343,11 +325,10 @@ test('CoT.is_vehicle', async (t) => {
         geometry: { type: 'Point', coordinates: [0,0] }
     });
 
-    t.notOk(cot.is_vehicle());
-    t.end();
+    expect(cot.is_vehicle()).toBeFalsy();
 });
 
-test('CoT.is_equipment', async (t) => {
+test('CoT.is_equipment', async () => {
     let cot = await CoTParser.from_geojson({
         type: 'Feature',
         properties: {
@@ -356,7 +337,7 @@ test('CoT.is_equipment', async (t) => {
         geometry: { type: 'Point', coordinates: [0,0] }
     });
 
-    t.ok(cot.is_equipment());
+    expect(cot.is_equipment()).toBeTruthy();
 
     cot = await CoTParser.from_geojson({
         type: 'Feature',
@@ -366,12 +347,10 @@ test('CoT.is_equipment', async (t) => {
         geometry: { type: 'Point', coordinates: [0,0] }
     });
 
-    t.notOk(cot.is_equipment());
-
-    t.end();
+    expect(cot.is_equipment()).toBeFalsy();
 });
 
-test('CoT.is_surface', async (t) => {
+test('CoT.is_surface', async () => {
     let cot = await CoTParser.from_geojson({
         type: 'Feature',
         properties: {
@@ -380,7 +359,7 @@ test('CoT.is_surface', async (t) => {
         geometry: { type: 'Point', coordinates: [0,0] }
     });
 
-    t.ok(cot.is_surface());
+    expect(cot.is_surface()).toBeTruthy();
 
     cot = await CoTParser.from_geojson({
         type: 'Feature',
@@ -390,11 +369,10 @@ test('CoT.is_surface', async (t) => {
         geometry: { type: 'Point', coordinates: [0,0] }
     });
 
-    t.notOk(cot.is_surface());
-    t.end();
+    expect(cot.is_surface()).toBeFalsy();
 });
 
-test('CoT.is_subsurface', async (t) => {
+test('CoT.is_subsurface', async () => {
     let cot = await CoTParser.from_geojson({
         type: 'Feature',
         properties: {
@@ -403,7 +381,7 @@ test('CoT.is_subsurface', async (t) => {
         geometry: { type: 'Point', coordinates: [0,0] }
     });
 
-    t.ok(cot.is_subsurface());
+    expect(cot.is_subsurface()).toBeTruthy();
 
     cot = await CoTParser.from_geojson({
         type: 'Feature',
@@ -413,11 +391,10 @@ test('CoT.is_subsurface', async (t) => {
         geometry: { type: 'Point', coordinates: [0,0] }
     });
 
-    t.notOk(cot.is_subsurface());
-    t.end();
+    expect(cot.is_subsurface()).toBeFalsy();
 });
 
-test('CoT.is_uav', async (t) => {
+test('CoT.is_uav', async () => {
     const cot = await CoTParser.from_geojson({
         type: 'Feature',
         properties: {
@@ -426,6 +403,5 @@ test('CoT.is_uav', async (t) => {
         geometry: { type: 'Point', coordinates: [0,0] }
     });
 
-    t.ok(cot.is_uav());
-    t.end();
+    expect(cot.is_uav()).toBeTruthy();
 });

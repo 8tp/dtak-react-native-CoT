@@ -19,14 +19,21 @@ import JSONCoT, { Detail } from './types/types.js'
 import CoT from './cot.js';
 import type { CoTOptions } from './cot.js';
 import AJV from 'ajv';
+import path from 'path-browserify';
 
-// React Native compatible path resolution
-// In React Native, you'll need to bundle the proto files or use a different approach
-const protoPath = './proto/takmessage.proto'; // This would need to be adjusted based on your React Native setup
-const RootMessage = await protobuf.load(protoPath);
+const pkg = { version: '14.7.9' };
 
-// For React Native, package.json reading would need to be handled differently
-const pkg = { version: '14.7.9' }; // Hardcoded for now, or read from a bundled file
+// Lazy-load protobuf root to avoid top-level await (not supported in CJS/Jest)
+let _rootMessage: protobuf.Root | null = null;
+async function getRootMessage(): Promise<protobuf.Root> {
+    if (!_rootMessage) {
+        // Resolve proto path relative to this module's directory
+        const protoDir = path.resolve(path.dirname(''), 'lib', 'proto');
+        const protoPath = path.join(protoDir, 'takmessage.proto');
+        _rootMessage = await protobuf.load(protoPath);
+    }
+    return _rootMessage;
+}
 
 const checkXML = (new AJV({
     allErrors: true,
@@ -139,6 +146,7 @@ export class CoTParser {
      */
     static async to_proto(cot: CoT, version = 1): Promise<Uint8Array> {
         if (version < 1 || version > 1) throw new Err(400, null, `Unsupported Proto Version: ${version}`);
+        const RootMessage = await getRootMessage();
         const ProtoMessage = RootMessage.lookupType(`atakmap.commoncommo.protobuf.v${version}.TakMessage`)
 
         // The spread operator is important to make sure the delete doesn't modify the underlying detail object
@@ -188,6 +196,7 @@ export class CoTParser {
         version = 1,
         opts: CoTOptions = {}
     ): Promise<CoT> {
+        const RootMessage = await getRootMessage();
         const ProtoMessage = RootMessage.lookupType(`atakmap.commoncommo.protobuf.v${version}.TakMessage`)
 
         // TODO Type this

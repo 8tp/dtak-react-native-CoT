@@ -1,7 +1,6 @@
-import test from 'tape';
 import { DirectChat } from '../index.js';
 
-test('DirectChat - Basic', (t) => {
+test('DirectChat - Basic', () => {
     const cot = new DirectChat({
         to: {
             uid: '123456',
@@ -14,36 +13,36 @@ test('DirectChat - Basic', (t) => {
         message: 'Direct Message Test'
     });
 
-    t.equals(cot.is_chat(), true);
+    expect(cot.is_chat()).toBe(true);
 
-    t.ok(cot.raw.event._attributes.uid);
+    expect(cot.raw.event._attributes.uid).toBeTruthy();
     cot.raw.event._attributes.uid = '123';
 
     if (!cot.raw.event.detail) {
-        t.fail('No Detail Section')
+        throw new Error('No Detail Section')
     } else {
-        t.equals(typeof cot.raw.event._attributes.time, 'string');
+        expect(typeof cot.raw.event._attributes.time).toBe('string');
         cot.raw.event._attributes.time = '2024-04-01'
-        t.equals(typeof cot.raw.event._attributes.start, 'string');
+        expect(typeof cot.raw.event._attributes.start).toBe('string');
         cot.raw.event._attributes.start = '2024-04-01'
-        t.equals(typeof cot.raw.event._attributes.stale, 'string');
+        expect(typeof cot.raw.event._attributes.stale).toBe('string');
         cot.raw.event._attributes.stale = '2024-04-01'
 
         if (!cot.raw.event.detail.__chat) {
-            t.fail('No Chat Section')
+            throw new Error('No Chat Section')
         } else {
-            t.equals(typeof cot.raw.event.detail.__chat._attributes.messageId, 'string');
+            expect(typeof cot.raw.event.detail.__chat._attributes.messageId).toBe('string');
             cot.raw.event.detail.__chat._attributes.messageId = '123';
         }
 
         if (!cot.raw.event.detail.remarks || !cot.raw.event.detail.remarks._attributes) {
-            t.fail('No Remarks Section')
+            throw new Error('No Remarks Section')
         } else {
-            t.equals(typeof cot.raw.event.detail.remarks._attributes.time, 'string');
+            expect(typeof cot.raw.event.detail.remarks._attributes.time).toBe('string');
             cot.raw.event.detail.remarks._attributes.time = '123';
         }
 
-        t.deepEquals(cot.raw, {
+        expect(cot.raw).toEqual({
             event: {
                 _attributes: {
                     uid: '123',
@@ -95,6 +94,4 @@ test('DirectChat - Basic', (t) => {
             }
         });
     }
-
-    t.end();
 });

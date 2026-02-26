@@ -1,40 +1,26 @@
 import type { Static } from '@sinclair/typebox';
 import type { Feature } from '../lib/types/feature.js';
-import RNFS from 'react-native-fs';
+import * as nodefs from 'fs';
 import path from 'path';
-import test from 'tape';
 import CoT, { CoTParser } from '../index.js';
 
-// React Native compatible fs wrapper
-const fs = {
-    readFile: async (filePath: string): Promise<Buffer> => {
-        const content = await RNFS.readFile(filePath, 'utf8');
-        return Buffer.from(content, 'utf8');
-    },
-    readdir: async (dirPath: string): Promise<string[]> => {
-        const result = await RNFS.readDir(dirPath);
-        return result.map(item => item.name);
-    }
-};
+const fixturesDir = path.join(__dirname, 'fixtures');
 
-// React Native compatible directory resolution - you'd need to bundle these files
-const fixturesDir = './test/fixtures/'; // This would need to be adjusted based on your React Native setup
+const fixtureFiles = nodefs.readdirSync(fixturesDir);
 
-for (const fixturename of await fs.readdir(fixturesDir)) {
-    test(`Protobuf Reversal Tests: ${fixturename}`, async (t) => {
+for (const fixturename of fixtureFiles) {
+    test(`Protobuf Reversal Tests: ${fixturename}`, async () => {
         const fixturePath = path.join(fixturesDir, fixturename);
-        const fixture: Static<typeof Feature> = JSON.parse(String(await fs.readFile(fixturePath)));
+        const fixture: Static<typeof Feature> = JSON.parse(nodefs.readFileSync(fixturePath, 'utf8'));
         const geo = await CoTParser.from_geojson(fixture)
         const intermediate = await CoTParser.to_proto(geo);
         const output = await CoTParser.from_proto(intermediate);
-        t.deepEquals(fixture, await CoTParser.to_geojson(output), fixturename);
-
-        t.end();
+        expect(fixture).toEqual(await CoTParser.to_geojson(output));
     });
 }
 
 // Ref: https://github.com/dfpc-coe/node-CoT/issues/55
-test('Protobuf Multiple Calls', async (t) => {
+test('Protobuf Multiple Calls', async () => {
     const cot = new CoT({
         event: {
             _attributes: {
@@ -67,9 +53,8 @@ test('Protobuf Multiple Calls', async (t) => {
     })
 
     const cot2 = await CoTParser.from_proto(await CoTParser.to_proto(cot))
-    t.deepEqual(cot2.raw.event.detail?.contact?._attributes.callsign, 'sign')
+    expect(cot2.raw.event.detail?.contact?._attributes.callsign).toEqual('sign')
     const cot3 = await CoTParser.from_proto(await CoTParser.to_proto(cot))
-    t.deepEqual(cot3.raw.event.detail?.contact?._attributes.callsign, 'sign')
+    expect(cot3.raw.event.detail?.contact?._attributes.callsign).toEqual('sign')
 
-    t.end();
 });
