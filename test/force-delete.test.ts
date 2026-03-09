@@ -1,20 +1,19 @@
-import test from 'tape';
 import { ForceDelete } from '../index.js';
 
-test('ForceDelete - Basic', (t) => {
+test('ForceDelete - Basic', () => {
     const cot = new ForceDelete('delete-uid');
 
     if (!cot.raw.event.detail) {
-        t.fail('No Detail Section')
+        throw new Error('No Detail Section')
     } else {
-        t.equals(typeof cot.raw.event._attributes.time, 'string');
+        expect(typeof cot.raw.event._attributes.time).toBe('string');
         cot.raw.event._attributes.time = '2024-04-01'
-        t.equals(typeof cot.raw.event._attributes.start, 'string');
+        expect(typeof cot.raw.event._attributes.start).toBe('string');
         cot.raw.event._attributes.start = '2024-04-01'
-        t.equals(typeof cot.raw.event._attributes.stale, 'string');
+        expect(typeof cot.raw.event._attributes.stale).toBe('string');
         cot.raw.event._attributes.stale = '2024-04-01'
 
-        t.deepEquals(cot.raw, {
+        expect(cot.raw).toEqual({
             event: {
                 _attributes: {
                     uid: 'delete-uid',
@@ -42,6 +41,4 @@ test('ForceDelete - Basic', (t) => {
             }
         });
     }
-
-    t.end();
 });

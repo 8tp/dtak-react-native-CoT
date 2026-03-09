@@ -1,7 +1,6 @@
-import test from 'tape';
 import CoT, { CoTParser } from '../index.js';
 
-test('En-decode polyline', async (t) => {
+test('En-decode polyline', async () => {
     const cot = new CoT({
         "event": {
             "_attributes": {
@@ -53,12 +52,10 @@ test('En-decode polyline', async (t) => {
 
     const cot2 = await CoTParser.from_proto(await CoTParser.to_proto(cot))
     const vertex = cot2.raw.event.detail?.shape?.polyline?.vertex
-    t.ok(Array.isArray(vertex) && vertex.length === 5)
-
-    t.end();
+    expect(Array.isArray(vertex) && vertex.length === 5).toBeTruthy()
 });
 
-test('En-decode 0-length polyline', async (t) => {
+test('En-decode 0-length polyline', async () => {
     const cot3 = new CoT({
         "event": {
             "_attributes": {
@@ -97,12 +94,10 @@ test('En-decode 0-length polyline', async (t) => {
 
     // xml en-decoding looses empty array, but should work.
     const cot4 = await CoTParser.from_proto(await CoTParser.to_proto(cot3))
-    t.ok(cot4.raw.event.detail?.shape?.polyline)
-
-    t.end();
+    expect(cot4.raw.event.detail?.shape?.polyline).toBeTruthy()
 });
 
-test('Basic Circle', async (t) => {
+test('Basic Circle', async () => {
     const cot = await CoTParser.from_xml(`
        <event version="2.0" uid="96bba41c-e6fd-44d5-be90-8d816c6b873b" type="u-r-b-c-c" how="h-e" time="2025-07-10T16:49:54Z" start="2025-07-10T16:49:43Z" stale="2025-07-11T16:49:43Z" access="Undefined">
             <point lat="41.8988499" lon="-113.9094586" hae="2040.381" ce="9999999.0" le="9999999.0"/>
@@ -142,7 +137,7 @@ test('Basic Circle', async (t) => {
     const feat = await CoTParser.to_geojson(cot);
     delete feat.properties.flow;
 
-    t.deepEqual(feat, {
+    expect(feat).toEqual({
         id: '96bba41c-e6fd-44d5-be90-8d816c6b873b',
         path: '/',
         type: 'Feature',
@@ -182,12 +177,12 @@ test('Basic Circle', async (t) => {
     const parsedCoT = await CoTParser.from_geojson(feat);
 
     if (!parsedCoT.raw.event.detail) {
-        t.fail('No Detail Section')
+        throw new Error('No Detail Section')
     } else {
-        t.ok(parsedCoT.raw.event.detail['_flow-tags_']);
+        expect(parsedCoT.raw.event.detail['_flow-tags_']).toBeTruthy();
         delete parsedCoT.raw.event.detail['_flow-tags_'];
 
-        t.deepEqual(parsedCoT.raw.event, {
+        expect(parsedCoT.raw.event).toEqual({
             _attributes: { version: '2.0', uid: '96bba41c-e6fd-44d5-be90-8d816c6b873b', type: 'u-r-b-c-c', how: 'h-e', time: '2025-07-10T16:49:54.000Z', start: '2025-07-10T16:49:43.000Z', stale: '2025-07-11T16:49:43Z' },
             point: { _attributes: { lat: 41.8988499, lon: -113.9094586, hae: 2040.381, ce: 9999999, le: 9999999 } },
             detail: {
@@ -224,6 +219,4 @@ test('Basic Circle', async (t) => {
             }
         });
     }
-
-    t.end();
 });

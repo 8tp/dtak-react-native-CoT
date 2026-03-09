@@ -19,14 +19,21 @@ import JSONCoT, { Detail } from './types/types.js'
 import CoT from './cot.js';
 import type { CoTOptions } from './cot.js';
 import AJV from 'ajv';
-import fs from 'fs';
-import path from 'node:path';
-import { fileURLToPath } from 'node:url';
+import path from 'path-browserify';
 
-const protoPath = path.join(path.dirname(fileURLToPath(import.meta.url)), 'proto', 'takmessage.proto');
-const RootMessage = await protobuf.load(protoPath);
+const pkg = { version: '14.7.9' };
 
-const pkg = JSON.parse(String(fs.readFileSync(new URL('../package.json', import.meta.url))));
+// Lazy-load protobuf root to avoid top-level await (not supported in CJS/Jest)
+let _rootMessage: protobuf.Root | null = null;
+async function getRootMessage(): Promise<protobuf.Root> {
+    if (!_rootMessage) {
+        // Resolve proto path relative to this module's directory
+        const protoDir = path.resolve(path.dirname(''), 'lib', 'proto');
+        const protoPath = path.join(protoDir, 'takmessage.proto');
+        _rootMessage = await protobuf.load(protoPath);
+    }
+    return _rootMessage;
+}
 
 const checkXML = (new AJV({
     allErrors: true,
@@ -49,8 +56,8 @@ export class CoTParser {
         opts: {
             flow: boolean
         } = {
-            flow: true
-        }
+                flow: true
+            }
     ): CoT {
         if (opts.flow === undefined) opts.flow = true;
 
@@ -121,7 +128,7 @@ export class CoTParser {
     static from_xml(
         raw: Buffer | string,
         opts: CoTOptions = {}
-   ): CoT {
+    ): CoT {
         const cot = new CoT(
             xml2js(String(raw), { compact: true }) as Static<typeof JSONCoT>,
             opts
@@ -139,6 +146,7 @@ export class CoTParser {
      */
     static async to_proto(cot: CoT, version = 1): Promise<Uint8Array> {
         if (version < 1 || version > 1) throw new Err(400, null, `Unsupported Proto Version: ${version}`);
+        const RootMessage = await getRootMessage();
         const ProtoMessage = RootMessage.lookupType(`atakmap.commoncommo.protobuf.v${version}.TakMessage`)
 
         // The spread operator is important to make sure the delete doesn't modify the underlying detail object
@@ -159,7 +167,7 @@ export class CoTParser {
 
         let key: keyof Static<typeof Detail>;
         for (key in detail) {
-            if(['contact', 'group', 'precisionlocation', 'status', 'takv', 'track'].includes(key)) {
+            if (['contact', 'group', 'precisionlocation', 'status', 'takv', 'track'].includes(key)) {
                 msg.cotEvent.detail[key] = detail[key]._attributes;
                 delete detail[key]
             }
@@ -188,6 +196,7 @@ export class CoTParser {
         version = 1,
         opts: CoTOptions = {}
     ): Promise<CoT> {
+        const RootMessage = await getRootMessage();
         const ProtoMessage = RootMessage.lookupType(`atakmap.commoncommo.protobuf.v${version}.TakMessage`)
 
         // TODO Type this

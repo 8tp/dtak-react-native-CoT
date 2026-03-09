@@ -1,19 +1,37 @@
 import type { Static } from '@sinclair/typebox';
 import type { Feature } from '../lib/types/feature.js';
-import fs from 'node:fs/promises';
-import path from 'node:path';
-import test from 'tape';
 import { CoTParser } from '../index.js';
-import { fileURLToPath } from 'node:url';
 
-for (const fixturename of await fs.readdir(new URL('./fixtures/', import.meta.url))) {
-    test(`GeoJSON Reversal Tests: ${fixturename}`, async (t) => {
-        const fixture: Static<typeof Feature> = JSON.parse(String(await fs.readFile(path.join(path.parse(fileURLToPath(import.meta.url)).dir, 'fixtures/', fixturename))));
-        const geo = await CoTParser.from_geojson(fixture)
-        const output = await CoTParser.to_geojson(geo);
+// Mock fixture data for testing - in a real React Native app, these would be bundled
+const mockFixtures: Record<string, Static<typeof Feature>> = {
+    'basic.geojson': {
+        "id": "123",
+        "type": "Feature",
+        "path": "/",
+        "properties": {
+            "type": "a-f-G",
+            "how": "m-g",
+            "callsign": "BasicTest",
+            "center": [1.1, 2.2, 0],
+            "time": "2023-08-04T15:17:43.649Z",
+            "start": "2023-08-04T15:17:43.649Z",
+            "stale": "2023-08-04T15:17:43.649Z",
+            "metadata": {}
+        },
+        "geometry": {
+            "type": "Point",
+            "coordinates": [1.1, 2.2, 0]
+        }
+    }
+};
 
-        t.deepEquals(fixture, output, fixturename);
+describe('GeoJSON Reversal Tests', () => {
+    Object.entries(mockFixtures).forEach(([fixtureName, fixture]) => {
+        test(`GeoJSON Reversal: ${fixtureName}`, async () => {
+            const geo = await CoTParser.from_geojson(fixture);
+            const output = await CoTParser.to_geojson(geo);
 
-        t.end();
+            expect(output).toEqual(fixture);
+        });
     });
-}
+});

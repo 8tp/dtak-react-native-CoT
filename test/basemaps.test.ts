@@ -1,19 +1,20 @@
-import fs from 'node:fs/promises';
-import path from 'node:path';
-import test from 'tape';
+import * as nodefs from 'fs';
+import path from 'path';
 import { Basemap } from '../index.js';
-import { fileURLToPath } from 'node:url';
 
-for (const fixturename of await fs.readdir(new URL('./basemaps/', import.meta.url))) {
-    test(`Basemap Test: ${fixturename}`, async (t) => {
-        const fixture = String(await fs.readFile(path.join(path.parse(fileURLToPath(import.meta.url)).dir, 'basemaps/', fixturename)));
-        const container = await Basemap.parse(fixture);
+const basemapsDir = path.join(__dirname, 'basemaps');
 
-        t.ok(container.raw.customMapSource.name._text.length)
+const fixtureFiles = nodefs.readdirSync(basemapsDir);
+
+for (const fixturename of fixtureFiles) {
+    test(`Basemap Test: ${fixturename}`, async () => {
+        const fixturePath = path.join(basemapsDir, fixturename);
+        const fixture = nodefs.readFileSync(fixturePath, 'utf8');
+        const container = Basemap.parse(fixture);
+
+        expect(container.raw.customMapSource.name._text.length).toBeTruthy()
 
         const json = container.to_json();
-        t.ok(json.name && json.name.length);
-
-        t.end();
+        expect(json.name && json.name.length).toBeTruthy();
     });
 }
